@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card p-4 shadow-sm">
+        <div class="text-center mb-4">
+          <img id="profile-preview" 
+            src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) if current_user.profile_picture else url_for('static', filename='default-avatar.png') }}" 
+            class="rounded-circle border mb-2" 
+            width="100" height="100" 
+            alt="Profile Picture">
+          <h2 class="mt-2">Update {{ role.capitalize() }} Profile</h2>
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+
+          <!-- Profile Picture Upload -->
+          <div class="mb-3 text-center">
+            <label for="profilePictureInput" class="btn btn-outline-primary">
+              <i class="bi bi-image"></i> Choose Profile Picture
+            </label>
+            <input type="file" name="profile_picture" id="profilePictureInput" accept="image/*" style="display:none;">
+            <span id="file-chosen" class="ms-2 text-muted">No file chosen</span>
+          </div>
+
+          <!-- NID / Birth Certificate Upload -->
+          <div class="mb-3 text-center">
+            <label for="nidCertInput" class="btn btn-outline-secondary">
+              <i class="bi bi-upload"></i> Upload NID / Birth Certificate
+            </label>
+            <input type="file" name="NID_Birth_Certificate" id="nidCertInput" accept="image/*,application/pdf" style="display:none;">
+            <span id="nid-file-chosen" class="ms-2 text-muted">No file chosen</span>
+          </div>
+
+          <!-- Common Fields -->
+          <div class="mb-3">
+            {{ form.phone_number.label(class_="form-label") }}
+            {{ form.phone_number(class_="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.address.label(class_="form-label") }}
+            {{ form.address(class_="form-control") }}
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              {{ form.division_id.label(class_="form-label") }}
+              {{ form.division_id(class_="form-select") }}
+            </div>
+            <div class="col">
+              {{ form.district_id.label(class_="form-label") }}
+              {{ form.district_id(class_="form-select") }}
+            </div>
+            <div class="col">
+              {{ form.upazila_id.label(class_="form-label") }}
+              {{ form.upazila_id(class_="form-select") }}
+            </div>
+          </div>
+
+          {% if role == 'guardian' %}
+            <!-- Guardian: Multiple Students -->
+            <div class="mb-3">
+              <label for="studentNameInput" class="form-label">Student Name(s) <small class="text-muted">(comma separated)</small></label>
+              {{ form.student_name(class_="form-control", id="studentNameInput", placeholder="e.g. Rahim, Karim, Samiha") }}
+            </div>
+            <div class="mb-3">
+              {{ form.student_class.label(class_="form-label") }}
+              {{ form.student_class(class_="form-select", id="studentClassInput", multiple=True) }}
+            </div>
+            <div class="mb-3">
+              {{ form.student_school.label(class_="form-label") }}
+              {{ form.student_school(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.subjects.label(class_="form-label") }}
+              {{ form.subjects(class_="form-control select2", placeholder="e.g. Math, Science") }}
+            </div>
+            <div class="mb-3">
+              {{ form.preferred_gender.label(class_="form-label") }}
+              {{ form.preferred_gender(class_="form-select") }}
+            </div>
+            <div class="mb-3">
+              {{ form.medium.label(class_="form-label") }}
+              {{ form.medium(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.salary.label(class_="form-label") }}
+              {{ form.salary(class_="form-control") }}
+            </div>
+          {% else %}
+            <!-- Tutor Fields -->
+            <div class="mb-3">
+              {{ form.education.label(class_="form-label") }}
+              {{ form.education(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.subjects.label(class_="form-label") }}
+              {{ form.subjects(class_="form-control select2", id="subjects") }}
+            </div>
+
+
+            <div class="mb-3">
+              {{ form.experience.label(class_="form-label") }}
+              {{ form.experience(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.institution.label(class_="form-label") }}
+              {{ form.institution(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.qualifications.label(class_="form-label") }}
+              {{ form.qualifications(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.preferred_classes.label(class_="form-label") }}
+              {{ form.preferred_classes(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.salary_expectation.label(class_="form-label") }}
+              {{ form.salary_expectation(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              <label for="available_days" class="form-label">Available Days</label>
+              {{ form.available_days(class="form-select", id="available_days", multiple=True) }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Available Time Slots</label>
+              <div id="timeSlotsContainer"></div>
+              <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="addTimeSlot()">Add Time Slot</button>
+              <input type="hidden" id="timeSlotsInput" name="time_slots" value="{{ form.time_slots.data or '' }}">
+            </div>
+          {% endif %}
+          <div class="text-end">
+            {{ form.submit(class_="btn btn-primary px-4") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<script>
+  $(document).ready(function() {
+    $('#subjects').select2({
+      tags: true,
+      tokenSeparators: [','],
+      placeholder: "Select or type subjects",
+      width: '100%'
+    });
+  });
+  $(document).ready(function () {
+    $('#available_days').select2({
+      placeholder: "Select available days",
+      width: '100%'
+    });
+  });
+
+  // Show chosen file name for profile picture
+  const fileInput = document.getElementById('profilePictureInput');
+  const fileChosen = document.getElementById('file-chosen');
+  if (fileInput) {
+    fileInput.addEventListener('change', function () {
+      fileChosen.textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    });
+  }
+
+  // Show chosen file name for NID upload
+  const nidInput = document.getElementById('nidCertInput');
+  const nidFileChosen = document.getElementById('nid-file-chosen');
+  if (nidInput) {
+    nidInput.addEventListener('change', function () {
+      nidFileChosen.textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    });
+  }
+
+  // Time Slot Functionality
+  const container = document.getElementById('timeSlotsContainer');
+  const hiddenInput = document.getElementById('timeSlotsInput');
+  function addTimeSlot(start = '', end = '') {
+    const group = document.createElement('div');
+    group.className = 'input-group mb-2';
+    group.innerHTML = `
+      <input type="time" class="form-control" value="${start}" placeholder="Start Time">
+      <span class="input-group-text">to</span>
+      <input type="time" class="form-control" value="${end}" placeholder="End Time">
+      <button class="btn btn-outline-danger" type="button" onclick="this.parentNode.remove(); updateHidden()">&times;</button>
+    `;
+    container.appendChild(group);
+    updateHidden();
+  }
+  function updateHidden() {
+    const slots = [];
+    container.querySelectorAll('.input-group').forEach(group => {
+      const [start, , end] = group.querySelectorAll('input');
+      if (start.value && end.value) slots.push(`${start.value}-${end.value}`);
+    });
+    hiddenInput.value = slots.join(', ');
+  }
+  function attachTimeSlotEvents(group) {
+  group.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', updateHidden);
+  });
+}
+
+function addTimeSlot(start = '', end = '') {
+  const group = document.createElement('div');
+  group.className = 'input-group mb-2';
+  group.innerHTML = `
+    <input type="time" class="form-control" value="${start}">
+    <span class="input-group-text">to</span>
+    <input type="time" class="form-control" value="${end}">
+    <button class="btn btn-outline-danger" type="button" onclick="this.parentNode.remove(); updateHidden()">&times;</button>
+  `;
+  container.appendChild(group);
+  attachTimeSlotEvents(group);
+  updateHidden();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const existing = hiddenInput.value.split(',').map(s => s.trim());
+  existing.forEach(slot => {
+    const [start, end] = slot.split('-');
+    if (start && end) addTimeSlot(start.trim(), end.trim());
+  });
+});
+
+</script>
+
+{% endblock %}

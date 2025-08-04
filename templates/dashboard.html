@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Hello, {{ user.username }}!</h2>
+<p class="lead">You are logged in as a {{ user.role }}.</p>
+{% if current_user.profile_picture %}
+  <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" class="rounded-circle" width="60" height="60" alt="Profile Picture">
+{% else %}
+  <img src="{{ url_for('static', filename='default-avatar.png') }}" class="rounded-circle" width="60" height="60" alt="Default Picture">
+{% endif %}
+
+{% if user.role == 'tutor' %}
+    <p>You can start applying for tuition jobs near your area.</p>
+{% elif user.role == 'guardian' %}
+    <p>You can start posting your tuition needs and browse tutors.</p>
+     <a href="{{ url_for('tutor_request') }}" class="btn btn-primary">Create Tutor Request</a>
+{% endif %}
+
+<a href="{{ url_for('update_profile') }}">Edit Profile</a>
+
+
+{% endblock %}
