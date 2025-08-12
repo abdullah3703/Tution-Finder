@@ -184,12 +184,47 @@ body.dark-mode {
   color: #ffffff;
 }
 
-.card, .form-control, .form-select {
-  background-color: #1e1e1e;
-  color: #ffffff;
-  border-color: #444;
+/* Select2 dropdown fix for dark mode */
+body.dark-mode .select2-container--default .select2-selection--multiple,
+body.dark-mode .select2-container--default .select2-selection--single {
+  background-color: var(--form-bg);
+  border-color: var(--form-border);
+  color: var(--text-color);
 }
 
-input::placeholder {
-  color: #cccccc;
+body.dark-mode .select2-dropdown {
+  background-color: var(--form-bg);
+  border: 1px solid var(--form-border);
+  color: var(--text-color);
 }
+
+body.dark-mode .select2-results__option {
+  background-color: var(--form-bg);
+  color: var(--text-color);
+}
+
+body.dark-mode .select2-results__option--highlighted {
+  background-color: var(--btn-bg);
+  color: var(--text-color);
+}
+
+body.dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered,
+body.dark-mode .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+  color: var(--text-color);
+}
+
+body.dark-mode .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: var(--text-color) transparent transparent transparent;
+}
+
+body.dark-mode .select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: var(--btn-bg);
+  color: var(--text-color);
+  border: none;
+}
+
+/* Optional: Fix placeholder color */
+body.dark-mode .select2-container--default .select2-selection__placeholder {
+  color: var(--form-placeholder);
+}
+

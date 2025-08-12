@@ -1,0 +1,90 @@
+✅ Updated 10 Features for Your Tuition Finder App (Dhaka Focused):
+🧠 1. Location-Based Search (with Area Filters)
+
+    Search tuitions/tutors by Dhaka-specific locations like Dhanmondi, Mirpur, Uttara, etc.
+
+    Use dropdown or Google Maps integration.
+
+    Optional: Nearby detection using GPS on mobile.
+
+👤 2. Separate User Profiles for Tutors & Guardians
+
+    Tutor: Subjects, qualifications, preferred classes, expected salary, time slots.
+
+    Guardian/Student: Class, subject needs, preferred gender, medium, salary offer.
+
+    Verified profile badges for trust.
+
+📚 3. Advanced Filtering System
+
+    Filter tuition posts or tutor profiles based on:
+
+        Class (e.g., Class 8, SSC)
+
+        Subject (Math, Science, etc.)
+
+        Gender Preference
+
+        Medium (Bangla, English Medium, Version)
+
+        Tuition Type: Home, Online, Batch
+
+📅 4. Tutor Availability Scheduling
+
+    Tutors set days and time slots they are available.
+
+    Guardian sees only matching tutors.
+
+🔒 5. Verification & Safety Measures
+
+    Tutors upload NID/educational certificates.
+
+    Phone/email OTP verification.
+
+    Guardian verification (optional: NID/utility bill).
+
+    Admin manually reviews flagged or suspicious accounts.
+
+🔔 6. Real-Time Notification System
+
+    Tutors get alerts for relevant tuition requests.
+
+    Guardians get notified when a tutor applies.
+
+    Support for email, SMS (via API like Twilio), or in-app alerts.
+
+💬 7. Built-in Chat System
+
+    In-app messaging between tutor and guardian.
+
+    “Request Contact” option unlocks phone number upon mutual interest.
+
+    Admin moderation for abusive messages.
+
+📈 8. Ratings & Reviews System
+
+    After a tuition, guardians rate tutors (and vice versa).
+
+    Helps maintain quality and trust in the platform.
+
+📊 9. User Dashboards
+
+    Tutor Dashboard: Manage applications, accepted tuitions, ratings.
+
+    Guardian Dashboard: Track posted tuitions, shortlisted tutors, hire history.
+
+🛠️ 10. Admin Panel
+
+    Admins can:
+
+        Approve/reject tutor signups or document uploads.
+
+        Remove fake/spam users.
+
+        Manage all tuition posts.
+
+        View and manage reports or abuse claims.
+
+        Promote trusted users.
+
+        View analytics: active users, tutor/tuition ratios, area-wise demand.

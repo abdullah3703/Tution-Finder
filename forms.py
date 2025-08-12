@@ -24,6 +24,8 @@ class GuardianProfileForm(FlaskForm):
         Optional(),
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
+    gender = SelectField('Gender', choices=[('male', 'Male'), ('female', 'Female'), ('others', 'Others')], validators=[Optional()])
+
     phone_number = StringField('Phone Number', validators=[Optional()])
     address = StringField('Address', validators=[Optional()])
     division_id = SelectField('Division', coerce=int, validators=[Optional()])
@@ -55,19 +57,22 @@ class TutorProfileForm(FlaskForm):
         Optional(),
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
+    gender = SelectField('Gender', choices=[('male', 'Male'), ('female', 'Female'), ('others', 'Others')], validators=[Optional()])
     phone_number = StringField('Phone Number', validators=[Optional()])
     address = StringField('Address', validators=[Optional()])
     division_id = SelectField('Division', coerce=int, validators=[Optional()])
     district_id = SelectField('District', coerce=int, validators=[Optional()])
     upazila_id = SelectField('Upazila', coerce=int, validators=[Optional()])
     education = TextAreaField('Academic Qualifications', validators=[Optional()])
-    subjects = StringField('Subjects You Can Teach', validators=[Optional()])
+    subjects_list = ['Math', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'Bangla', 'General knowledge', 'Arabic']  # extend as needed
+
+    subjects = SelectMultipleField('Subjects You Can Teach', choices=[(s, s) for s in subjects_list], validators=[Optional()])
     experience = TextAreaField('Teaching Experience', validators=[Optional()])
-    institution = StringField('Institution', validators=[Optional()])
-    qualifications = TextAreaField('Qualifications', validators=[Optional()])
+    
+    qualifications = TextAreaField('Skills and Qualifications', validators=[Optional()])
     preferred_classes = StringField('Preferred Classes', validators=[Optional()])  # e.g
     salary_expectation = StringField('Expected Salary', validators=[Optional()])  # e.g. "5000-7000 BDT"
-    time_slots = StringField('Available Time Slots', validators=[Optional()])  # e
+    #time_slots = StringField('Available Time Slots', validators=[Optional()])  # e
     NID_Birth_Certificate = FileField('NID / Birth Certificate (Image)', validators=[
         Optional(),
         FileAllowed(['jpg', 'png', 'jpeg', 'pdf'], 'Only image or PDF files allowed')
@@ -82,6 +87,36 @@ class TutorProfileForm(FlaskForm):
         ('Saturday', 'Saturday'),
         ('Sunday', 'Sunday'),
     ], validators=[Optional()])
+    preferred_classes = SelectMultipleField(
+    'Preferred Classes',
+    choices=[
+        ('Class 1', 'Class 1'), ('Class 2', 'Class 2'), ('Class 3', 'Class 3'),
+        ('Class 4', 'Class 4'), ('Class 5', 'Class 5'), ('Class 6', 'Class 6'),
+        ('Class 7', 'Class 7'), ('Class 8', 'Class 8'), ('Class 9', 'Class 9'),
+        ('Class 10', 'Class 10'), ('Class 11', 'Class 11'), ('Class 12', 'Class 12')
+    ],
+    validators=[Optional()]
+    )
+    # SSC
+    ssc_institute = StringField('SSC Institute', validators=[Optional()])
+    ssc_result = StringField('SSC Result', validators=[Optional()])
+    ssc_group = StringField('SSC Group', validators=[Optional()])
+    ssc_certificate = FileField('SSC Certificate', validators=[Optional()])
+
+    # HSC
+    hsc_institute = StringField('HSC Institute', validators=[Optional()])
+    hsc_result = StringField('HSC Result', validators=[Optional()])
+    hsc_group = StringField('HSC Group', validators=[Optional()])
+    hsc_certificate = FileField('HSC Certificate', validators=[Optional()])
+
+    # Graduation
+    graduation_institute = StringField('Graduation Institute', validators=[Optional()])
+    graduation_result = StringField('Graduation Result', validators=[Optional()])
+    graduation_subject = StringField('Graduation Subject', validators=[Optional()])
+    graduation_certificate = FileField('Graduation Certificate', validators=[Optional()])
+
+
+
 
 
     submit = SubmitField('Update Profile')

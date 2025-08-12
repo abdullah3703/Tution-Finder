@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     NID_Birth_Certificate = db.Column(db.String(255))  # Previously 100
 
     is_verified = db.Column(db.Boolean, default=False)
+    gender = db.Column(db.String(10), nullable=True)  # e
 
 
     # Common Fields
@@ -48,8 +49,26 @@ class User(db.Model, UserMixin):
     salary_expectation = db.Column(db.String(50))  # e.g. "5000-7000 BDT"
     time_slots = db.Column(db.String(200))  # e.g. "Mon-Fri 5-7 PM"
     experience = db.Column(db.Text)  # Teaching experience or background info
-    institution = db.Column(db.String(100))  # Where they currently study or teach
+    is_seeking_tuition = db.Column(db.Boolean, default=False)  # New field for tutors
     available_days = db.Column(db.String(255))  # comma-separated values
+    # SSC
+    ssc_institute = db.Column(db.String(100))
+    ssc_result = db.Column(db.String(10))
+    ssc_group = db.Column(db.String(50))
+    ssc_certificate = db.Column(db.String(255))
+
+    # HSC
+    hsc_institute = db.Column(db.String(100))
+    hsc_result = db.Column(db.String(10))
+    hsc_group = db.Column(db.String(50))
+    hsc_certificate = db.Column(db.String(255))
+
+    # Graduation
+    graduation_institute = db.Column(db.String(100))
+    graduation_result = db.Column(db.String(10))
+    graduation_subject = db.Column(db.String(100))
+    graduation_certificate = db.Column(db.String(255))
+
 
 
 
