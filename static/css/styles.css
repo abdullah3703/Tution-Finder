@@ -228,3 +228,48 @@ body.dark-mode .select2-container--default .select2-selection__placeholder {
   color: var(--form-placeholder);
 }
 
+.custom-modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.custom-modal-content {
+  background-color: var(--card-bg);
+  margin: 5% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  position: relative;
+}
+
+.custom-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 24px;
+  cursor: pointer;
+}
+a#notificationDropdown::after {
+  display: none !important;
+}
+  .notif-unread {
+    font-weight: bold;
+    color: #212529;
+    background-color: #f8f9fa;
+  }
+
+  .notif-read {
+    color: #6c757d;
+  }
+
+  .dropdown-item:hover {
+    background-color: #e9ecef;
+  }

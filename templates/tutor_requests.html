@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Incoming Tuition Requests</h2>
+
+  {% if requests %}
+    <div class="row">
+      {% for req in requests %}
+        <div class="col-md-6">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ req.guardian_name }}</h5>
+              <p class="card-text">
+                <strong>Contact:</strong> {{ req.guardian_contact }}<br>
+                <strong>Classes:</strong> {{ req.student_classes }}<br>
+                <strong>Subjects:</strong> {{ req.subjects }}<br>
+                <strong>Preferred Days:</strong> {{ req.preferred_days or 'N/A' }}<br>
+                <strong>Address:</strong> {{ req.address or 'N/A' }}<br>
+                <strong>Status:</strong> <span class="badge bg-info text-dark">{{ req.status }}</span>
+                
+              </p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <button 
+                    class="btn btn-outline-primary btn-sm" 
+                    onclick='showCustomMapModal({{ req.latitude }}, {{ req.longitude }}, {{ req.address | tojson | safe }})'>
+                    <i class="bi bi-map"></i>
+                    View Map
+                </button>
+
+
+
+                <form method="post" action="{{ url_for('respond_tutor_request') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="request_id" value="{{ req.id }}">
+                    <button name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
+                    <button name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Modal -->
+        <div id="customMapModal" class="custom-modal-overlay" onclick="hideCustomMapModal(event)">
+        <div class="custom-modal-content" onclick="event.stopPropagation()">
+            <span class="custom-modal-close" onclick="hideCustomMapModal()">&times;</span>
+            <h5>Location on Map</h5>
+            <div id="customMap" style="height: 400px;"></div>
+        </div>
+        </div>
+
+
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">You have no tutor requests at the moment.</div>
+  {% endif %}
+</div>
+
+
+{% block scripts %}
+<script>
+let customMapInstance = null;
+
+function showCustomMapModal(lat, lng, title = "Selected Location") {
+    console.log(`Showing map for coordinates: ${lat}, ${lng}`);
+  const modal = document.getElementById('customMapModal');
+  modal.style.display = 'block';
+
+  setTimeout(() => {
+    const mapContainer = document.getElementById('customMap');
+
+    // Clean up any previous map
+    if (customMapInstance) {
+      customMapInstance.remove();
+    }
+
+    // Create map
+    customMapInstance = L.map(mapContainer).setView([lat, lng], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(customMapInstance);
+
+    L.marker([lat, lng]).addTo(customMapInstance).bindPopup(title).openPopup();
+  }, 100); // slight delay to ensure DOM is ready
+}
+
+function hideCustomMapModal() {
+  const modal = document.getElementById('customMapModal');
+  modal.style.display = 'none';
+
+  if (customMapInstance) {
+    customMapInstance.remove();
+    customMapInstance = null;
+  }
+}
+</script>
+
+
+{% endblock %}
+
+<style>
+.leaflet-map-container {
+  height: 400px;
+  width: 100%;
+}
+</style>
+
+{% endblock %}

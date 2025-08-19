@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+
+  
+
+  <!-- Guardian & Tutor Cards -->
+  <div class="row text-center">
+    <div class="col-md-6 mb-4">
+      <div class="card text-white bg-primary" data-bs-toggle="modal" data-bs-target="#guardianModal" style="cursor:pointer;">
+        <div class="card-body">
+          <h4 class="card-title">Total Guardians</h4>
+          <h2>{{ guardians|length }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card text-white bg-success" data-bs-toggle="modal" data-bs-target="#tutorModal" style="cursor:pointer;">
+        <div class="card-body">
+          <h4 class="card-title">Total Tutors</h4>
+          <h2>{{ tutors|length }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guardian Modal -->
+    <div class="modal fade" id="guardianModal" tabindex="-1" aria-labelledby="guardianModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" style="background: linear-gradient(to bottom, #e9ecefa3, #f8f9fa8e);">
+        <div class="modal-header" style="background-color: #dee2e6; color: black;">
+            <h5 class="modal-title">Guardian Information</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-bordered table-hover mb-0">
+            <thead style="background: linear-gradient(to right, #ced4da89, #dee2e671); color: #212529;">
+                <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Student</th>
+                <th>NID</th>
+                <th>Verified</th>
+                <th>Action</th>
+                </tr>
+            </thead>
+            <tbody style="background-color: #f1f3f5c3;">
+                {% for g in guardians %}
+                <tr>
+                <td>{{ g.username }}</td>
+                <td>{{ g.email }}</td>
+                <td>{{ g.phone_number }}</td>
+                <td>{{ g.student_name }} (Class: {{ g.student_class }})</td>
+                <td>
+                    {% if g.NID_Birth_Certificate %}
+                    <a href="{{ url_for('static', filename='uploads/' + g.NID_Birth_Certificate) }}" target="_blank">View</a>
+                    {% else %} N/A {% endif %}
+                </td>
+                <td>{{ 'Yes' if g.is_verified else 'No' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('verify_user', user_id=g.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-primary" type="submit">
+                        {{ 'Unverify' if g.is_verified else 'Verify' }}
+                    </button>
+                    </form>
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Tutor Modal -->
+    <div class="modal fade" id="tutorModal" tabindex="-1" aria-labelledby="tutorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" style="background: linear-gradient(to bottom, #e9ecef9c, #f8f9fa80);">
+        <div class="modal-header" style="background-color: #dee2e6b4; color: #000;">
+            <h5 class="modal-title">Tutor Information</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-bordered table-hover mb-0">
+            <thead style="background: linear-gradient(to right, #ced4da81, #dee2e672); color: #212529;">
+                <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Subjects</th>
+                <th>Certificates</th>
+                <th>Verified</th>
+                <th>Action</th>
+                </tr>
+            </thead>
+            <tbody style="background-color: #f1f3f5ce;">
+                {% for t in tutors %}
+                <tr>
+                <td>{{ t.username }}</td>
+                <td>{{ t.email }}</td>
+                <td>{{ t.phone_number }}</td>
+                <td>{{ t.subjects }}</td>
+                <td>
+                    {% if t.NID_Birth_Certificate %}
+                    NID: <a href="{{ url_for('static', filename='uploads/' + t.NID_Birth_Certificate) }}" target="_blank">View</a><br>
+                    {% endif %}
+                    {% if t.ssc_certificate %}
+                    SSC: <a href="{{ url_for('static', filename='uploads/' + t.ssc_certificate) }}" target="_blank">View</a><br>
+                    {% endif %}
+                    {% if t.hsc_certificate %}
+                    HSC: <a href="{{ url_for('static', filename='uploads/' + t.hsc_certificate) }}" target="_blank">View</a><br>
+                    {% endif %}
+                    {% if t.graduation_certificate %}
+                    Graduation: <a href="{{ url_for('static', filename='uploads/' + t.graduation_certificate) }}" target="_blank">View</a>
+                    {% endif %}
+                </td>
+                <td>{{ 'Yes' if t.is_verified else 'No' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('verify_user', user_id=t.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-primary" type="submit">
+                        {{ 'Unverify' if t.is_verified else 'Verify' }}
+                    </button>
+                    </form>
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+    </div>
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Your Confirmed Tuition</h3>
+    <ul class="list-group">
+        <li class="list-group-item"><strong>Classes:</strong> {{ tuition.student_classes }}</li>
+        <li class="list-group-item"><strong>Subjects:</strong> {{ tuition.subjects }}</li>
+        <li class="list-group-item"><strong>Preferred Days:</strong> {{ tuition.preferred_days }}</li>
+        <li class="list-group-item"><strong>Time Slots:</strong> {{ tuition.time_slots }}</li>
+        <li class="list-group-item"><strong>Address:</strong> {{ tuition.address }}</li>
+    </ul>
+</div>
+{% endblock %}

@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    is_admin = db.Column(db.Boolean, default=False)
 
 
     # Basic Info
@@ -16,6 +17,7 @@ class User(db.Model, UserMixin):
     NID_Birth_Certificate = db.Column(db.String(255))  # Previously 100
 
     is_verified = db.Column(db.Boolean, default=False)
+    email_verified = db.Column(db.Boolean, default=False)
     gender = db.Column(db.String(10), nullable=True)  # e
 
 
@@ -69,6 +71,15 @@ class User(db.Model, UserMixin):
     graduation_subject = db.Column(db.String(100))
     graduation_certificate = db.Column(db.String(255))
 
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    message = db.Column(db.String(255))
+    link = db.Column(db.String(255))  # URL to redirect
+    is_read = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, server_default=db.func.now())
+
+    user = db.relationship('User', backref='notifications')
 
 
 
@@ -133,3 +144,39 @@ class TutorRequest(db.Model):
     status = db.Column(db.String(20), default='pending')  # e.g. 'pending' or 'found'
 
     user = db.relationship('User', backref=db.backref('tutor_requests', passive_deletes=True))
+
+class TutorRequestInbox(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    
+    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    guardian_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+
+    student_classes = db.Column(db.String(100), nullable=False)  # CSV
+    subjects = db.Column(db.String(200), nullable=False)  # CSV
+    preferred_days = db.Column(db.String(100), nullable=True)
+    time_slots = db.Column(db.String(100), nullable=True)
+
+    guardian_name = db.Column(db.String(100), nullable=False)
+    guardian_contact = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(300), nullable=True)
+
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+
+    status = db.Column(db.String(20), default='pending')  # 'pending', 'accepted', 'rejected'
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+
+class ConfirmedTuition(db.Model):
+    id = db.Column(db.String(10), primary_key=True)  # e.g., T00000001
+    guardian_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    guardian_name = db.Column(db.String(100))
+    guardian_contact = db.Column(db.String(100))
+    student_classes = db.Column(db.String(200))
+    subjects = db.Column(db.String(300))
+    preferred_days = db.Column(db.String(100))
+    time_slots = db.Column(db.String(100))
+    address = db.Column(db.String(300))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))

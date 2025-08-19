@@ -173,6 +173,33 @@
                   <option value="">All Districts</option>
                 </select>
               </div>
+              <div class="row g-2 mb-2">
+                <div class="col-md-4">
+                  <label class="form-label">Preferred Days</label>
+                  <select name="available_days" id="available_days" multiple="multiple" class="form-select">
+                    {% for day in ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] %}
+                      <option value="{{ day }}">{{ day }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Student Classes</label>
+                  <select name="student_classes" id="student_classes" multiple="multiple" class="form-select">
+                    {% for cls in ['KG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'HSC'] %}
+                      <option value="{{ cls }}">{{ cls }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Subjects</label>
+                  <select name="subjects" id="subjects" multiple="multiple" class="form-select">
+                    {% for sub in ['Math', 'English', 'Physics', 'Chemistry', 'Biology', 'Bangla'] %}
+                      <option value="{{ sub }}">{{ sub }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
               <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-success w-100">Search</button>
               </div>
@@ -201,8 +228,131 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="tuitionDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-color);">
+      <div class="modal-header border-bottom" style="border-color: var(--card-border);">
+        <h5 class="modal-title">Tuition Request Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="tuitionDetailContent"></div>
+        <div id="mapContainer" class="mt-4" style="height: 300px; border-radius: 8px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="sendRequestModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="sendRequestForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-color);">
+        <div class="modal-header" style="border-color: var(--card-border);">
+          <h5 class="modal-title">Send Tutor Request</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="tutor_id" id="requestTutorId">
+
+          <div class="mb-2">
+            <label>Guardian Name</label>
+            <input type="text" name="guardian_name" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label>Contact Info</label>
+            <input type="text" name="guardian_contact" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label>Preferred Classes</label>
+            <select id="request-class" name="student_classes" multiple class="form-control select2">
+              <option>KG</option>
+              <option>Class 1</option>
+              <option>Class 2</option>
+              <option>Class 3</option>
+              <option>Class 4</option>
+              <option>Class 5</option>
+              <option>Class 6</option>
+              <option>Class 7</option>
+              <option>Class 8</option>
+              <option>Class 9</option>
+              <option>Class 10</option>
+              <option>Class 11</option>
+              <option>Class 12</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label>Subjects</label>
+            <select id="request-subjects" name="subjects" multiple class="form-control select2">
+              <option>Math</option>
+              <option>English</option>
+              <option>Physics</option>
+              <option>Chemistry</option>
+              <option>Biology</option>
+              <option>Bangla</option>
+              <option>History</option>
+              <option>Geography</option>
+              <option>ICT</option>
+              <option>Accounting</option>
+              <option>Economics</option>
+              <option>Business Studies</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label>Preferred Days</label>
+            <select id="request-days" name="preferred_days" multiple class="form-control select2">
+              <option>Saturday</option>
+              <option>Sunday</option>
+              <option>Monday</option>
+              <option>Tuesday</option>
+              <option>Wednesday</option>
+              <option>Thursday</option>
+              <option>Friday</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label>Time Slot</label>
+            <input type="text" name="time_slots" class="form-control" placeholder="e.g., 5 PM - 7 PM">
+          </div>
+          <div class="mb-2">
+            <label>Address</label>
+            <textarea name="address" class="form-control" id="modal-address"></textarea>
+            <input type="hidden" id="modal-lat" name="lat">
+            <input type="hidden" id="modal-lng" name="lng">
+            <button type="button" id="fillAddressBtn" class="btn btn-link">Get Address from Map</button>
+          </div>
+          <div id="map" style="height: 300px;" class="mb-3"></div>
+
+          
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Send Request</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 <script>
+  $(document).ready(function () {
+  $('#request-class, #request-subjects, #request-days').select2({
+    dropdownParent: $('#sendRequestModal'),
+    placeholder: function () {
+      return $(this).attr('id') === 'request-class' ? 'Select classes' :
+             $(this).attr('id') === 'request-subjects' ? 'Select subjects' :
+             'Select preferred days';
+    },
+    width: '100%'  // <- This fixes the width issue
+  });
+});
+
   $(document).ready(function () {
   $('#available_day').select2({
     placeholder: "Select available day(s)",
@@ -307,6 +457,12 @@
                     <p><strong>Available Days:</strong> ${tutor.available_days || 'N/A'}</p>
                     <p><strong>Expected Salary:</strong> ${tutor.salary_expectation || 'N/A'}</p>
                     <button class="btn btn-primary view-profile-btn" data-id="${tutor.id}">View Profile</button>
+                    <button class="btn btn-success send-request-btn"
+                            data-tutor-id="${tutor.id}"
+                            data-name="${tutor.name}">
+                        Send Tutor Request
+                    </button>
+
                   </div>
                 </div>
               </div>
@@ -315,6 +471,113 @@
         });
     });
   });
+ $(document).on('click', '.send-request-btn', function () {
+  const tutorId = $(this).data('tutor-id');
+  $('#requestTutorId').val(tutorId);
+
+  // Get values from the search form (not the modal)
+  const selectedClasses = $('#class-select').val() || [];
+  const selectedSubjects = $('#subject-select').val() || [];
+  const selectedDays = $('#available_day').val() || [];
+  const timeSlot = $('#time_slot').val() || ''; // Ensure this ID exists in your search form
+  const address = $('#address').val() || '';     // Ensure this ID exists in your search form
+
+  // If your search form has coordinates
+  const lat = $('#lat').val() || '';
+  const lng = $('#lng').val() || '';
+  $('#modal-lat').val(lat);
+  $('#modal-lng').val(lng);
+// Address will be filled after clicking "Get Address from Map"
+
+
+  // Set values in the modal
+  $('#request-class').val(selectedClasses).trigger('change');
+  $('#request-subjects').val(selectedSubjects).trigger('change');
+  $('#request-days').val(selectedDays).trigger('change');
+  $('input[name="time_slots"]').val(timeSlot);
+  $('textarea[name="address"]').val(address);
+
+  // Show the modal
+  $('#sendRequestModal').modal('show');
+});
+
+$('#sendRequestForm').on('submit', function (e) {
+  e.preventDefault(); // Prevent default form submission
+
+  const formData = $(this).serialize(); // Serialize form fields
+
+  $.ajax({
+    url: '/send_tutor_request',
+    type: 'POST',
+    data: $(this).serialize(),
+    success: function (response) {
+      if (response.status === 'success') {
+        // Optionally show success message
+        alert('Tutor request sent successfully!');
+        $('#sendRequestModal').modal('hide');
+        $('#sendRequestForm')[0].reset();
+        $('.select2').val(null).trigger('change'); // reset selects
+      }
+    },
+    error: function (xhr) {
+      alert('Something went wrong! Please try again.');
+    }
+  });
+});
+
+let map, marker;
+
+$('#sendRequestModal').on('shown.bs.modal', function () {
+  if (!map) {
+    map = L.map('map').setView([23.8103, 90.4125], 12); // Dhaka default
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    map.on('click', function (e) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+
+      if (marker) {
+        marker.setLatLng(e.latlng);
+      } else {
+        marker = L.marker(e.latlng).addTo(map);
+      }
+
+      $('#modal-lat').val(lat);
+      $('#modal-lng').val(lng);
+    });
+  }
+
+  setTimeout(() => {
+    map.invalidateSize(); // Fix for hidden map in modal
+  }, 200);
+});
+
+$('#fillAddressBtn').on('click', function () {
+  const lat = $('#modal-lat').val();
+  const lng = $('#modal-lng').val();
+
+  if (!lat || !lng) {
+    alert('Please select a location on the map first.');
+    return;
+  }
+
+  const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+
+  $.getJSON(url, function(data) {
+    if (data && data.display_name) {
+      $('#modal-address').val(data.display_name);
+    } else {
+      alert('Could not fetch address. Please try again.');
+    }
+  }).fail(function() {
+    alert('Error communicating with geocoding server.');
+  });
+});
+
+
 document.addEventListener('click', function (event) {
   if (event.target.classList.contains('view-profile-btn')) {
     const tutorId = event.target.getAttribute('data-id');
@@ -391,11 +654,27 @@ $('#tuition-division').on('change', function () {
   }
 });
 
-// Search tuition requests
+$(document).ready(function () {
+  $('#available_days, #student_classes, #subjects').select2({
+    width: '100%',
+    placeholder: "Select options"
+  });
+});
+
 $('#tuitionSearchForm').on('submit', function (e) {
   e.preventDefault();
-  const params = new URLSearchParams(new FormData(this)).toString();
-  fetch(`/api/search_tuition_requests?${params}`)
+  const formData = new FormData(this);
+  const params = new URLSearchParams();
+
+  for (let [key, value] of formData.entries()) {
+    if (params.has(key)) {
+      params.set(key, params.get(key) + ',' + value);
+    } else {
+      params.append(key, value);
+    }
+  }
+
+  fetch(`/api/search_tuition_requests?${params.toString()}`)
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById('tuitionResults');
@@ -416,6 +695,7 @@ $('#tuitionSearchForm').on('submit', function (e) {
                 <p><strong>Time:</strong> ${req.teaching_time || 'Not specified'}</p>
                 <p><strong>Location:</strong> ${req.address_text || req.district}</p>
                 <p><strong>Gender Preference:</strong> ${req.preferred_tutor_gender}</p>
+                <button class="btn btn-outline-primary btn-sm mt-2" onclick="viewTuitionDetails(${req.id})">View Details</button>
               </div>
             </div>
           </div>
@@ -424,6 +704,51 @@ $('#tuitionSearchForm').on('submit', function (e) {
     });
 });
 
+
+function viewTuitionDetails(id) {
+  fetch(`/api/get_tuition_details/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      const d = data;
+
+      const detailHtml = `
+        <h5>${d.subjects}</h5>
+        <p><strong>Classes:</strong> ${d.student_classes}</p>
+        <p><strong>Medium:</strong> ${d.teaching_medium}</p>
+        <p><strong>Students:</strong> ${d.students_number}</p>
+        <p><strong>Preferred Days:</strong> ${d.preferred_days}</p>
+        <p><strong>Time:</strong> ${d.teaching_time || 'Not specified'}</p>
+        <p><strong>Salary:</strong> ${d.salary || 'Not specified'}</p>
+        <p><strong>Start Date:</strong> ${d.starting_date}</p>
+        <p><strong>Preferred Tutor Gender:</strong> ${d.preferred_tutor_gender}</p>
+        <p><strong>Address:</strong> ${d.address_text} (${d.division}, ${d.district})</p>
+        <p><strong>Contact:</strong> ${d.phone_number}</p>
+      `;
+
+      document.getElementById('tuitionDetailContent').innerHTML = detailHtml;
+
+      // Load map
+      const lat = d.latitude;
+      const lng = d.longitude;
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+        .then(res => res.json())
+        .then(locationData => {
+          const mapHTML = `
+            <iframe width="100%" height="300" style="border:0"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}"
+              allowfullscreen>
+            </iframe>
+            <small><a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}">View larger map</a></small>
+          `;
+          document.getElementById('mapContainer').innerHTML = mapHTML;
+        });
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('tuitionDetailModal'));
+      modal.show();
+    });
+}
 
 </script>
 
