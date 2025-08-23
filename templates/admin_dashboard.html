@@ -1,41 +1,195 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-3">
 
-  
-
-  <!-- Guardian & Tutor Cards -->
-  <div class="row text-center">
-    <div class="col-md-6 mb-4">
-      <div class="card text-white bg-primary" data-bs-toggle="modal" data-bs-target="#guardianModal" style="cursor:pointer;">
+  <!-- Analytics Cards Row -->
+  <div class="row text-center mb-4">
+    <div class="col-md-3">
+      <div class="card dashboard-card">
         <div class="card-body">
-          <h4 class="card-title">Total Guardians</h4>
+          <h6>Active Users (Last 30 days)</h6>
+          <h2>{{ active_users_count }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <h6>Total Guardians</h6>
           <h2>{{ guardians|length }}</h2>
         </div>
       </div>
     </div>
-    <div class="col-md-6 mb-4">
-      <div class="card text-white bg-success" data-bs-toggle="modal" data-bs-target="#tutorModal" style="cursor:pointer;">
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
         <div class="card-body">
-          <h4 class="card-title">Total Tutors</h4>
+          <h6>Total Tutors</h6>
           <h2>{{ tutors|length }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <h6>Tutor to Tuition Requests Ratio</h6>
+          <h2>{{ tutor_request_ratio }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Area-wise demand summary -->
+  <div class="card mb-4">
+    <div class="card-header">
+      Area-wise Tuition Demand Summary
+    </div>
+    <div class="card-body">
+      {% for division, count in demand_by_division.items() %}
+        <p><strong>{{ division }}:</strong> {{ count }} Requests</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Control Buttons Row -->
+  <div class="row text-center g-3 mb-4">
+    <div class="col-md-3">
+      <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#guardianModal">View Guardians</button>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#tutorModal">View Tutors</button>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#reportedProfilesModal">Reported Profiles</button>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#reportedPostsModal">Reported Posts</button>
+    </div>
+
+    <!-- Extra Admin Tools -->
+    <div class="col-md-3">
+      <a href="{{ url_for('add_admin') }}" class="btn btn-dark w-100">Add Admin</a>
+    </div>
+    
+    <div class="col-md-3">
+  <a href="{{ url_for('manage_admins') }}" class="btn btn-outline-primary w-100">Manage Admins</a>
+</div>
+
+  </div>
+
+  <!-- Reported Profiles Modal -->
+  <div class="modal fade" id="reportedProfilesModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content modal-themed">
+        <div class="modal-header modal-header-themed">
+          <h5 class="modal-title">Reported Profiles</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-hover themed-table">
+            <thead>
+              <tr>
+                <th>Reported User</th>
+                <th>Reporter</th>
+                <th>Reason</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in reported_profiles %}
+              <tr>
+                <td>{{ r.reported_user.username if r.reported_user else 'Deleted User' }}</td>
+                <td>{{ r.reporter.username }}</td>
+                <td>{{ r.report_type }}</td>
+                <td>{{ r.description or '' }}</td>
+                <td>{{ r.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                <td>
+                  {% if r.reported_user %}
+                    <a href="{{ url_for('view_profile', user_id=r.reported_user.id) }}" class="btn btn-sm btn-info" target="_blank">View Profile</a>
+                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=r.reported_user.id) }}" style="display:inline;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete User</button>
+                    </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('remove_report', report_id=r.id) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-secondary" onclick="return confirm('Remove this report?')">Remove Report</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reported Posts Modal -->
+  <div class="modal fade" id="reportedPostsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content modal-themed">
+        <div class="modal-header modal-header-themed">
+          <h5 class="modal-title">Reported Posts</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-hover themed-table">
+            <thead>
+              <tr>
+                <th>Post ID</th>
+                <th>Reporter</th>
+                <th>Reason</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in reported_posts %}
+              <tr>
+                <td>{{ r.reported_request.id if r.reported_request else 'Deleted Post' }}</td>
+                <td>{{ r.reporter.username }}</td>
+                <td>{{ r.report_type }}</td>
+                <td>{{ r.description or '' }}</td>
+                <td>{{ r.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                <td>
+                  {% if r.reported_request %}
+                    <form method="POST" action="{{ url_for('admin_delete_post', request_id=r.reported_request.id) }}" style="display:inline;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this post?')">Delete Post</button>
+                    </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('remove_report', report_id=r.id) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-secondary" onclick="return confirm('Remove this report?')">Remove Report</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Guardian Modal -->
-    <div class="modal fade" id="guardianModal" tabindex="-1" aria-labelledby="guardianModalLabel" aria-hidden="true">
+  <div class="modal fade" id="guardianModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content" style="background: linear-gradient(to bottom, #e9ecefa3, #f8f9fa8e);">
-        <div class="modal-header" style="background-color: #dee2e6; color: black;">
-            <h5 class="modal-title">Guardian Information</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-content modal-themed">
+        <div class="modal-header modal-header-themed">
+          <h5 class="modal-title">Guardians</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-            <table class="table table-bordered table-hover mb-0">
-            <thead style="background: linear-gradient(to right, #ced4da89, #dee2e671); color: #212529;">
-                <tr>
+          <table class="table table-bordered table-hover themed-table">
+            <thead>
+              <tr>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -43,50 +197,51 @@
                 <th>NID</th>
                 <th>Verified</th>
                 <th>Action</th>
-                </tr>
+              </tr>
             </thead>
-            <tbody style="background-color: #f1f3f5c3;">
-                {% for g in guardians %}
-                <tr>
+            <tbody>
+              {% for g in guardians %}
+              <tr>
                 <td>{{ g.username }}</td>
                 <td>{{ g.email }}</td>
                 <td>{{ g.phone_number }}</td>
                 <td>{{ g.student_name }} (Class: {{ g.student_class }})</td>
                 <td>
-                    {% if g.NID_Birth_Certificate %}
-                    <a href="{{ url_for('static', filename='uploads/' + g.NID_Birth_Certificate) }}" target="_blank">View</a>
-                    {% else %} N/A {% endif %}
+                  {% if g.NID_Birth_Certificate %}
+                  <a href="{{ url_for('static', filename='uploads/' + g.NID_Birth_Certificate) }}" target="_blank">View</a>
+                  {% else %} N/A {% endif %}
                 </td>
                 <td>{{ 'Yes' if g.is_verified else 'No' }}</td>
                 <td>
-                    <form method="POST" action="{{ url_for('verify_user', user_id=g.id) }}">
+                  <a href="{{ url_for('view_profile', user_id=g.id) }}" class="btn btn-sm btn-info" target="_blank">View Profile</a>
+                  <form method="POST" action="{{ url_for('verify_user', user_id=g.id) }}" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-outline-primary" type="submit">
-                        {{ 'Unverify' if g.is_verified else 'Verify' }}
+                      {{ 'Unverify' if g.is_verified else 'Verify' }}
                     </button>
-                    </form>
+                  </form>
                 </td>
-                </tr>
-                {% endfor %}
+              </tr>
+              {% endfor %}
             </tbody>
-            </table>
+          </table>
         </div>
-        </div>
+      </div>
     </div>
-    </div>
+  </div>
 
-    <!-- Tutor Modal -->
-    <div class="modal fade" id="tutorModal" tabindex="-1" aria-labelledby="tutorModalLabel" aria-hidden="true">
+  <!-- Tutor Modal -->
+  <div class="modal fade" id="tutorModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content" style="background: linear-gradient(to bottom, #e9ecef9c, #f8f9fa80);">
-        <div class="modal-header" style="background-color: #dee2e6b4; color: #000;">
-            <h5 class="modal-title">Tutor Information</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-content modal-themed">
+        <div class="modal-header modal-header-themed">
+          <h5 class="modal-title">Tutors</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-            <table class="table table-bordered table-hover mb-0">
-            <thead style="background: linear-gradient(to right, #ced4da81, #dee2e672); color: #212529;">
-                <tr>
+          <table class="table table-bordered table-hover themed-table">
+            <thead>
+              <tr>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -94,47 +249,47 @@
                 <th>Certificates</th>
                 <th>Verified</th>
                 <th>Action</th>
-                </tr>
+              </tr>
             </thead>
-            <tbody style="background-color: #f1f3f5ce;">
-                {% for t in tutors %}
-                <tr>
+            <tbody>
+              {% for t in tutors %}
+              <tr>
                 <td>{{ t.username }}</td>
                 <td>{{ t.email }}</td>
                 <td>{{ t.phone_number }}</td>
                 <td>{{ t.subjects }}</td>
                 <td>
-                    {% if t.NID_Birth_Certificate %}
-                    NID: <a href="{{ url_for('static', filename='uploads/' + t.NID_Birth_Certificate) }}" target="_blank">View</a><br>
-                    {% endif %}
-                    {% if t.ssc_certificate %}
-                    SSC: <a href="{{ url_for('static', filename='uploads/' + t.ssc_certificate) }}" target="_blank">View</a><br>
-                    {% endif %}
-                    {% if t.hsc_certificate %}
-                    HSC: <a href="{{ url_for('static', filename='uploads/' + t.hsc_certificate) }}" target="_blank">View</a><br>
-                    {% endif %}
-                    {% if t.graduation_certificate %}
-                    Graduation: <a href="{{ url_for('static', filename='uploads/' + t.graduation_certificate) }}" target="_blank">View</a>
-                    {% endif %}
+                  {% if t.NID_Birth_Certificate %}
+                  NID: <a href="{{ url_for('static', filename='uploads/' + t.NID_Birth_Certificate) }}" target="_blank">View</a><br>
+                  {% endif %}
+                  {% if t.ssc_certificate %}
+                  SSC: <a href="{{ url_for('static', filename='uploads/' + t.ssc_certificate) }}" target="_blank">View</a><br>
+                  {% endif %}
+                  {% if t.hsc_certificate %}
+                  HSC: <a href="{{ url_for('static', filename='uploads/' + t.hsc_certificate) }}" target="_blank">View</a><br>
+                  {% endif %}
+                  {% if t.graduation_certificate %}
+                  Graduation: <a href="{{ url_for('static', filename='uploads/' + t.graduation_certificate) }}" target="_blank">View</a>
+                  {% endif %}
                 </td>
                 <td>{{ 'Yes' if t.is_verified else 'No' }}</td>
                 <td>
-                    <form method="POST" action="{{ url_for('verify_user', user_id=t.id) }}">
+                  <a href="{{ url_for('view_profile', user_id=t.id) }}" class="btn btn-sm btn-info" target="_blank">View Profile</a>
+                  <form method="POST" action="{{ url_for('verify_user', user_id=t.id) }}" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-outline-primary" type="submit">
-                        {{ 'Unverify' if t.is_verified else 'Verify' }}
+                      {{ 'Unverify' if t.is_verified else 'Verify' }}
                     </button>
-                    </form>
+                  </form>
                 </td>
-                </tr>
-                {% endfor %}
+              </tr>
+              {% endfor %}
             </tbody>
-            </table>
+          </table>
         </div>
-        </div>
+      </div>
     </div>
-    </div>
-
+  </div>
 
 </div>
 {% endblock %}

@@ -1,8 +1,185 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="text-center">
-    <h1>Welcome to Tuition Finder</h1>
-    <p class="lead">Find and connect with tutors or tuition opportunities in Dhaka.</p>
-    <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+<style>
+  /* Hero Section */
+  .hero {
+    background: url('/static/images/bangladesh-city.jpg') center/cover no-repeat fixed;
+    color: white;
+    padding: 100px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    font-weight: 600;
+    text-shadow: 0 0 15px rgba(0,0,0,0.8);
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.9));
+    z-index: 0;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: auto;
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+  .btn-primary {
+    margin-top: 30px;
+    font-size: 1.3rem;
+    background: #004085;
+    border: none;
+    border-radius: 40px;
+    padding: 15px 50px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.4s ease;
+  }
+  .btn-primary:hover {
+    background: #002752;
+  }
+
+  /* Content Sections */
+  .content-section {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .content-text {
+    flex: 1 1 520px;
+  }
+  .content-text h2 {
+    font-size: 2rem;
+    color: #003366;
+    margin-bottom: 15px;
+  }
+  .content-text p {
+    font-size: 1.1rem;
+    color: #444;
+    line-height: 1.6;
+  }
+  .content-image {
+    flex: 1 1 450px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: transform 0.6s ease, box-shadow 0.6s ease;
+    will-change: transform;
+  }
+  .content-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.8s ease;
+  }
+  .content-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+  .content-image:hover img {
+    transform: scale(1.15) rotate(2deg);
+  }
+
+  /* Alternating layout for sections */
+  .content-section:nth-child(even) {
+    flex-direction: row-reverse;
+  }
+
+  /* Scroll reveal */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .content-section {
+      flex-direction: column;
+    }
+    .content-section:nth-child(even) {
+      flex-direction: column;
+    }
+    .content-text, .content-image {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+    .content-image {
+      margin-top: 30px;
+    }
+  }
+</style>
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>Welcome to Tuition Finder Bangladesh</h1>
+    <p>Your trusted destination to connect with qualified tutors and tuition opportunities all across Bangladesh.</p>
+    <button class="btn-primary" onclick="location.href='{{ url_for('register') }}'">Get Started</button>
+  </div>
 </div>
+
+<section class="content-section scroll-reveal">
+  <div class="content-text">
+    <h2>How People Get Help Here</h2>
+    <p>
+      Whether you're a guardian searching for qualified tutors or a tutor looking to offer your services, Tuition Finder connects you easily with relevant opportunities anywhere in Bangladesh. Our platform is designed to bring together students and tutors with powerful search, filters, and verified profiles so everyone finds the perfect match.
+    </p>
+  </div>
+  <div class="content-image">
+    <img src="/static/images/helping-hand.jpg" alt="Helping hand supporting education" />
+  </div>
+</section>
+
+<section class="content-section scroll-reveal">
+  <div class="content-text">
+    <h2>Our Goal</h2>
+    <p>
+      We aim to make quality education accessible to all by simplifying the process of finding trustworthy tutors and tuition opportunities. By leveraging technology and community trust, our mission is to empower learners and educators throughout Bangladesh to achieve educational success together.
+    </p>
+  </div>
+  <div class="content-image">
+    <img src="/static/images/education-goal.jpg" alt="Educational goal and success concept" />
+  </div>
+</section>
+
+<section class="content-section scroll-reveal">
+  <div class="content-text">
+    <h2>Key Features You Can Rely On</h2>
+    <p>
+      From location-based search covering all regions of Bangladesh, to user profiles with verification and reviews, instant notifications, and smart filters–our platform offers all the tools needed to make tutoring easy, safe, and effective for everyone involved.
+    </p>
+  </div>
+  <div class="content-image">
+    <img src="/static/images/digital-learning.jpg" alt="Digital learning and tutoring" />
+  </div>
+</section>
+
+<script>
+  // Scroll reveal logic
+  function revealOnScroll() {
+    const reveals = document.querySelectorAll('.scroll-reveal');
+    const windowBottom = window.innerHeight;
+
+    reveals.forEach(el => {
+      const elementTop = el.getBoundingClientRect().top;
+      if (elementTop < windowBottom - 100) {
+        el.classList.add('visible');
+      }
+    });
+  }
+  window.addEventListener('scroll', revealOnScroll);
+  window.addEventListener('load', revealOnScroll);
+</script>
 {% endblock %}

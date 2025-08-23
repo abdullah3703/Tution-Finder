@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>Tuition Finder</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/tutorlinkbd-logo.png') }}" type="image/png">
+    <title>TutorLink BD</title>
     <!-- jQuery and Bootstrap JS (required) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -26,8 +26,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
 
-        <!-- Brand -->
-        <a class="navbar-brand" href="{{ url_for('home') }}">Tuition Finder</a>
+         <!-- Brand with logo and link -->
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+          <img src="{{ url_for('static', filename='images/tutorlinkbd-logo.png') }}" alt="TutorLink BD Logo" style="height: 40px; margin-right: 10px; vertical-align: middle;">
+          TutorLink BD
+        </a>
 
         
 
@@ -61,6 +64,7 @@
         <div class="d-flex align-items-center ms-auto">
 
           {% if current_user.is_authenticated %}
+
             <!-- Notification -->
             <div class="nav-item dropdown me-3">
               <a class="nav-link position-relative text-white" href="#" id="notificationDropdown"
@@ -70,24 +74,37 @@
                   {{ all_notifications | selectattr("is_read", "equalto", False) | list | length }}
                 </span>
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" id="notif-menu"
-                  style="max-height: 300px; overflow-y: auto;">
+              <ul class="dropdown-menu dropdown-menu-end notif-dropdown" id="notif-menu">
                 {% if all_notifications|length == 0 %}
                   <li id="no-notif-msg">
                     <span class="dropdown-item text-muted">No notifications</span>
                   </li>
                 {% else %}
                   {% for notif in all_notifications %}
-                    <li>
-                      <a href="#" class="dropdown-item {% if not notif.is_read %}fw-bold text-dark{% else %}text-muted{% endif %}"
-                        data-id="{{ notif.id }}" data-link="{{ notif.link }}"
+                    <li class="notif-item {% if not notif.is_read %}unread{% endif %}">
+                      <a href="#" 
+                        class="dropdown-item d-flex align-items-start"
+                        data-id="{{ notif.id }}" 
+                        data-link="{{ notif.link }}"
                         onclick="handleNotificationClickAttr(event, this)">
-                        {{ notif.message }}
+                        
+                        <!-- Avatar -->
+                        <img src="{{ url_for('static', filename='uploads/' + notif.user.profile_picture) if notif.user and notif.user.profile_picture else url_for('static', filename='uploads/default.jpg') }}" 
+                            class="rounded-circle me-2 notif-avatar" 
+                            alt="{{ notif.user.username if notif.user else 'Default User' }}"
+                            onerror="this.onerror=null; this.src='{{ url_for('static', filename='uploads/default.jpg') }}';">
+
+                        <!-- Message + Timestamp -->
+                        <div class="notif-content flex-grow-1">
+                          <div class="notif-message">{{ notif.message }}</div>
+                          <small class="notif-time">{{ notif.timestamp.strftime('%b %d, %Y %I:%M %p') }}</small>
+                        </div>
                       </a>
                     </li>
                   {% endfor %}
                 {% endif %}
               </ul>
+
             </div>
           {% endif %}
 
@@ -181,37 +198,37 @@ socket.on("connect", () => {
 socket.on("new_notification", function (data) {
   const notifMenu = document.getElementById("notif-menu");
   const notifCount = document.getElementById("notif-count");
-
   const noNotifMsg = document.getElementById("no-notif-msg");
   if (noNotifMsg) noNotifMsg.remove();
 
   const notifItem = document.createElement("li");
-  const notifLink = document.createElement("a");
-  notifLink.href = "#";
-  notifLink.className = "dropdown-item fw-bold text-dark";
-  notifLink.textContent = data.message;
-  notifLink.onclick = function (e) {
-  e.preventDefault();
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  notifItem.className = "notif-item unread";
 
-  fetch(`/mark_notification_read/${data.id}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken
-    }
-  }).then(() => window.location.href = data.link);
-};
+  notifItem.innerHTML = `
+    <a href="#" class="dropdown-item d-flex align-items-start" 
+       data-id="${data.id}" data-link="${data.link}"
+       onclick="handleNotificationClickAttr(event, this)">
+      <img src="${data.sender_avatar || '/static/uploads/default.jpg'}" 
+          class="rounded-circle me-2 notif-avatar" 
+          alt="${data.sender_name ? data.sender_name + '\'s Profile Picture' : 'Default User'}"
+          onerror="this.onerror=null; this.src='/static/uploads/default.jpg';">
 
+      <div class="notif-content flex-grow-1">
+        <div class="notif-message">${data.message}</div>
+        <small class="notif-time">${data.timestamp}</small>
+      </div>
+    </a>
+  `;
 
-  notifItem.appendChild(notifLink);
   notifMenu.prepend(notifItem);
 
   const newCount = parseInt(notifCount.textContent) || 0;
   notifCount.textContent = newCount + 1;
   notifCount.classList.remove("d-none");
 });
+
 </script>
+
 
 <!-- Leaflet CSS -->
 <link

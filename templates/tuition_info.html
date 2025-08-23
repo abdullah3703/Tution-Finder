@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-5">
+
+    <!-- Tuition Card -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <h3 class="mb-0">
+                📚 Tuition Details – {{ tuition.id }}
+            </h3>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Guardian & Tutor Info -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="text-primary">👨‍👩‍👧 Guardian</h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ guardian.username if guardian else 'N/A' }}</p>
+                    <p class="mb-1"><strong>Contact:</strong> {{ guardian.phone_number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-primary">🎓 Tutor</h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ tutor.username if tutor else 'N/A' }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ tutor.email if tutor else 'N/A' }}</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Tuition Details -->
+            <h5 class="text-primary mb-3">📄 Tuition Information</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Classes:</strong> {{ tuition.student_classes }}</p>
+                    <p><strong>Subjects:</strong> {{ tuition.subjects }}</p>
+                    <p><strong>Preferred Days:</strong> {{ tuition.preferred_days }}</p>
+                    <p><strong>Tuition Days:</strong> {{ tuition.tution_days or 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Time Slots:</strong> {{ tuition.time_slots }}</p>
+                    <p><strong>Start Time:</strong> {{ tuition.start_time.strftime('%d %b %Y, %I:%M %p') if tuition.start_time else 'N/A' }}</p>
+                    <p><strong>End Time:</strong> {{ tuition.end_time.strftime('%d %b %Y, %I:%M %p') if tuition.end_time else 'N/A' }}</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Location -->
+            <h5 class="text-primary mb-3">📍 Location</h5>
+            <p><strong>Address:</strong> {{ tuition.address }}</p>
+            <div class="map-container rounded overflow-hidden mb-3" style="height:300px;">
+                <iframe 
+                    src="https://maps.google.com/maps?q={{ tuition.latitude }},{{ tuition.longitude }}&z=15&output=embed"
+                    width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy">
+                </iframe>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-end">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅ Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header {
+        background: linear-gradient(90deg, #007bff, #0056b3);
+    }
+    .map-container iframe {
+        filter: grayscale(20%);
+    }
+</style>
+{% endblock %}

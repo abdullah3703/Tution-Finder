@@ -1,87 +1,181 @@
-/* ---------------------- COLOR VARIABLES ---------------------- */
+/* =======================================================================
+   COLOR VARIABLES
+   ======================================================================= */
 :root {
-    --bg-color: #f8f9fa;
+    /* Light Mode - Soft, Fresh Gradients */
+    --bg-color: linear-gradient(135deg, #f8f9fa, #e9f2ff);
     --text-color: #212529;
-    --nav-bg: #343a40;
-    --card-bg: #ffffff;
+    --nav-bg: linear-gradient(135deg, #0d6efd, #00b4d8);
+    --card-bg: linear-gradient(145deg, #ffffff, #f3f8fd);
     --card-border: #dee2e6;
-    --alert-bg: #e9ecef;
+    --alert-bg: linear-gradient(135deg, #e0ffe0, #f8f9fa);
     --alert-text: #212529;
     --link-color: #0d6efd;
     --form-bg: #ffffff;
     --form-border: #ced4da;
     --form-placeholder: #6c757d;
-    --btn-bg: #0d6efd;
+    --btn-bg: linear-gradient(135deg, #0d6efd, #00b4d8);
     --btn-border: #0d6efd;
 }
 
-/* Dark mode overrides */
+/* Dark Mode Overrides */
 body.dark-mode {
-    --bg-color: #121212;
+    --bg-color: linear-gradient(135deg, #121212, #1f1f1f);
     --text-color: #e0e0e0;
-    --nav-bg: #1f1f1f;
-    --card-bg: #1e1e1e;
+    --nav-bg: linear-gradient(135deg, #232526, #414345);
+    --card-bg: linear-gradient(145deg, #1e1e1e, #292929);
     --card-border: #333;
-    --alert-bg: #2c2c2c;
+    --alert-bg: linear-gradient(135deg, #2c3e50, #34495e);
     --alert-text: #f1f1f1;
     --link-color: #90caf9;
-    --form-bg: #2a2a2a;
+    --form-bg: linear-gradient(145deg, #1f1f1f, #2a2a2a);
     --form-border: #444;
     --form-placeholder: #aaaaaa;
-    --btn-bg: #3a3a3a;
+    --btn-bg: linear-gradient(135deg, #3a3a3a, #555);
     --btn-border: #555;
 }
 
-/* ---------------------- GLOBAL STYLES ---------------------- */
+/* =======================================================================
+   GLOBAL STYLES
+   ======================================================================= */
 body {
-    background-color: var(--bg-color);
+    background: var(--bg-color);
+    background-attachment: fixed;
     color: var(--text-color);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.navbar {
-    background-color: var(--nav-bg) !important;
-    transition: background-color 0.3s;
-}
-
-.card {
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border: 1px solid var(--card-border);
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-
-.alert {
-    background-color: var(--alert-bg);
-    color: var(--alert-text);
-    border: 1px solid var(--card-border);
-    transition: background-color 0.3s, color 0.3s;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 'Helvetica Neue', Arial, sans-serif;
+    transition: background 0.3s, color 0.3s;
+    padding-top: 56px; /* adjust to your navbar height */
 }
 
 a {
     color: var(--link-color);
 }
-
-/* ---------------------- BUTTONS ---------------------- */
-.btn-primary {
-    background-color: var(--btn-bg);
-    border-color: var(--btn-border);
-}
-
-/* ---------------------- FORMS ---------------------- */
-.form-control {
-    background-color: var(--form-bg);
+/* Solid modal background in light mode */
+.modal-content {
+    background: linear-gradient(145deg, #ffffff, #f3f3f3) !important;
     color: var(--text-color);
-    border: 1px solid var(--form-border);
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    border-radius: 8px;
 }
 
-.form-control::placeholder {
-    color: var(--form-placeholder);
+/* Solid modal background in dark mode */
+body.dark-mode .modal-content {
+    background: linear-gradient(145deg, #1e1e1e, #2c2c2c) !important;
+    color: var(--text-color);
+}
+.filename-text {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    word-break: break-word;
 }
 
-/* ---------------------- TOGGLE SWITCH ---------------------- */
+/* =======================================================================
+   NAVBAR
+   ======================================================================= */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1050; /* higher than most elements */
+    background: var(--nav-bg) !important;
+    transition: background 0.3s;
+}
+
+
+.navbar, 
+.navbar a.nav-link,
+.navbar .navbar-brand {
+    color: #fff !important;
+    transition: color 0.3s ease;
+}
+
+.navbar a.nav-link:hover,
+.navbar .navbar-brand:hover {
+    color: #ffe082 !important;
+}
+
+/* =======================================================================
+   CARDS & ALERTS
+   ======================================================================= */
+.card {
+    background: var(--card-bg) !important;
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    transition: background 0.3s, color 0.3s;
+}
+
+.alert {
+    background: var(--alert-bg) !important;
+    color: var(--alert-text);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* =======================================================================
+   BUTTONS
+   ======================================================================= */
+.btn-primary {
+    background: var(--btn-bg);
+    border-color: var(--btn-border);
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+/* =======================================================================
+   FORMS
+   ======================================================================= */
+.form-control,
+.form-select,
+input,
+textarea,
+select {
+    background: var(--form-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--form-border) !important;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.form-control::placeholder,
+textarea::placeholder,
+input::placeholder {
+    color: var(--form-placeholder) !important;
+    opacity: 1;
+}
+
+select option {
+    background: var(--form-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* =======================================================================
+   DARK MODE FORM FIXES FOR SELECT2 & BOOTSTRAP
+   ======================================================================= */
+body.dark-mode .select2-container--bootstrap-5 .select2-selection,
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background: var(--form-bg);
+    border-color: var(--form-border);
+    color: var(--text-color);
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    background: var(--form-bg);
+    border-color: var(--link-color);
+    color: var(--text-color);
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25);
+}
+
+/* =======================================================================
+   TOGGLE BUTTON
+   ======================================================================= */
 #darkModeToggle {
     background: none;
     border: none;
@@ -93,183 +187,427 @@ a {
 #darkModeToggle:hover {
     transform: scale(1.1);
 }
-#profilePictureInput {
-    color: var(--text-color)!important;
+
+/* =======================================================================
+   MAP
+   ======================================================================= */
+#map {
+    height: 300px;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--form-border);
 }
 
-#file-chosen {
-    color: var(--text-color)!important;
+body.dark-mode #map {
+    border-color: var(--btn-border);
+}
+
+/* =======================================================================
+   MODALS
+   ======================================================================= */
+.custom-modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100vw; height: 100vh;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+.custom-modal-content {
+    background: var(--card-bg);
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 700px;
+    position: relative;
+    color: var(--text-color);
+}
+
+body.dark-mode .custom-modal-content {
+    background: linear-gradient(145deg, #1e1e1e, #2c2c2c) !important;
+}
+
+body:not(.dark-mode) .custom-modal-content {
+    background: linear-gradient(145deg, #ffffff, #f3f3f3) !important;
+}
+
+/* =======================================================================
+   NOTIFICATIONS
+   ======================================================================= */
+a#notificationDropdown::after { display: none !important; }
+
+.notif-unread {
+    font-weight: bold;
+    color: #212529;
+    background-color: #f8f9fa;
+}
+
+.notif-read {
+    color: #6c757d;
+}
+
+.dropdown-item:hover {
+    background-color: #e9ecef;
+}
+
+/* Notification dropdown styling */
+/* Default (light mode) */
+.notif-dropdown {
+    width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: var(--card-bg, #ffffff); /* fallback */
+    border: 1px solid var(--card-border, #dee2e6); /* fallback */
+    padding: 0.25rem 0;
+}
+
+/* Dark mode */
+body.dark-mode .notif-dropdown {
+    background-color: #1e1e1e;
+    border-color: #333;
+}
+
+
+.notif-item.unread {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.notif-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    flex-shrink: 0; /* prevent shrinking */
+}
+
+.notif-content {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    word-wrap: break-word; /* allow breaking long words */
+    white-space: normal;   /* allow text to wrap to multiple lines */
+}
+
+
+.notif-message {
     font-size: 0.9rem;
-    margin-top: 0.5rem;
- 
+    color: var(--text-color);
+    font-weight: 500;
+    overflow-wrap: break-word; /* ensure wrapping */
 }
 
-input,
-textarea,
-select,
-.form-control,
+.notif-time {
+    font-size: 0.75rem;
+    color: var(--form-placeholder);
+    margin-top: 0.2rem;
+}
+
+
+
+body.dark-mode .notif-message {
+    color: #e0e0e0;
+}
+
+body.dark-mode .notif-time {
+    color: #aaaaaa;
+}
+/* Override dropdown-item hover for notifications */
+.notif-dropdown .dropdown-item:hover {
+    background-color: rgba(0, 123, 255, 0.15) !important; /* soft blue hover */
+    color: var(--text-color) !important; /* keep text readable */
+    text-decoration: none;
+}
+
+/* Optional: slightly darker hover for unread notifications */
+.notif-dropdown .notif-item.unread .dropdown-item:hover {
+    background-color: rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .notif-dropdown .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #e0e0e0 !important;
+}
+/* Light mode specifically */
+body:not(.dark-mode) .notif-dropdown {
+    background: #ffffff !important; /* solid white */
+    border: 1px solid #dee2e6 !important;
+}
+
+/* ==============================
+   SELECT2 - Light Mode
+   ============================== */
+.select2-container--bootstrap-5 .select2-selection {
+    background: var(--form-bg);
+    color: var(--text-color);
+    border: 1px solid var(--form-border);
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.select2-container--bootstrap-5 .select2-selection__rendered {
+    color: var(--text-color);
+}
+
+.select2-container--bootstrap-5 .select2-search__field {
+    background: var(--form-bg);
+    color: var(--text-color);
+}
+
+.select2-container--bootstrap-5 .select2-selection__placeholder {
+    color: var(--form-placeholder);
+    opacity: 0.8;
+}
+
+/* Dropdown menu */
+.select2-dropdown {
+    background: var(--form-bg);
+    border: 1px solid var(--form-border);
+    color: var(--text-color);
+}
+
+.select2-results__option {
+    background: var(--form-bg);
+    color: var(--text-color);
+}
+
+.select2-results__option--highlighted {
+    background: var(--btn-bg);
+    color: #fff;
+}
+
+/* Multiple select selected items */
+.select2-selection__choice {
+    background: var(--btn-bg) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+/* ==============================
+   SELECT2 - Dark Mode
+   ============================== */
+body.dark-mode .select2-container--bootstrap-5 .select2-selection {
+    background: var(--form-bg);
+    color: var(--text-color);
+    border-color: var(--form-border);
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-selection__rendered {
+    color: var(--text-color);
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-selection__placeholder {
+    color: var(--form-placeholder);
+    opacity: 0.8;
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-search__field {
+    background: var(--form-bg);
+    color: var(--text-color);
+}
+
+body.dark-mode .select2-dropdown {
+    background: var(--card-bg);
+    border: 1px solid var(--form-border);
+    color: var(--text-color);
+}
+
+body.dark-mode .select2-results__option {
+    background: var(--form-bg);
+    color: var(--text-color);
+}
+
+body.dark-mode .select2-results__option--highlighted {
+    background: var(--btn-bg);
+    color: #fff;
+}
+
+/* Multiple select selected items in dark mode */
+body.dark-mode .select2-selection__choice {
+    background: var(--btn-bg) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+
+
+body.dark-mode .select2-container--bootstrap-5 .select2-selection__choice {
+    background: var(--btn-bg) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+body.dark-mode .select2-results__option {
+    background: var(--form-bg) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-mode .select2-results__option--highlighted {
+    background: var(--btn-bg) !important;
+    color: #fff !important;
+}
+/* FINAL OVERRIDE: Select2 dark dropdown & input backgrounds */
+body.dark-mode .select2-container .select2-dropdown,
+body.dark-mode .select2-container .select2-search__field,
+body.dark-mode .select2-dropdown,
+body.dark-mode .select2-selection,
+body.dark-mode .select2-selection--multiple,
+body.dark-mode .select2-selection__rendered,
+body.dark-mode .select2-results__option {
+    background: var(--form-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--form-border) !important;
+}
+
+body.dark-mode .select2-container .select2-results__option--highlighted,
+body.dark-mode .select2-results__option--highlighted {
+    background: var(--btn-bg) !important;
+    color: #fff !important;
+}
+body.dark-mode .select2-selection__choice {
+    background: var(--btn-bg) !important;
+    color: #fff !important;
+    border: none !important;
+}
+/* ===========================================================
+   Dark Mode Fix for Native Dropdowns (.form-select)
+   =========================================================== */
 .form-select {
+    background-color: var(--form-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--form-border) !important;
+    box-shadow: none !important;
+}
+
+/* Dropdown options in dark mode */
+.form-select option {
+    background-color: var(--form-bg) !important;
+    color: var(--text-color) !important;
+}
+body.dark-mode .form-select,
+body.dark-mode select,
+body.dark-mode .form-select:focus {
     background-color: var(--form-bg) !important;
     color: var(--text-color) !important;
     border-color: var(--form-border) !important;
 }
 
-input::placeholder,
-textarea::placeholder {
-    color: var(--form-placeholder);
-    opacity: 1;
+body.dark-mode .form-select option,
+body.dark-mode select option {
+    background-color: var(--form-bg) !important;
+    color: var(--text-color) !important;
+}
+/* Dark mode styling for native .form-select dropdowns */
+body.dark-mode .form-select,
+body.dark-mode select {
+    background-color: var(--form-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--form-border) !important;
+    box-shadow: none !important;
 }
 
-select option {
-    background-color: var(--form-bg);
-    color: var(--text-color);
+/* Options inside native dropdown in dark mode */
+body.dark-mode .form-select option,
+body.dark-mode select option {
+    background-color: var(--form-bg) !important;
+    color: var(--text-color) !important;
 }
-body.dark-mode .select2-container--bootstrap-5 .select2-selection {
-    background-color: var(--form-bg);
-    color: var(--text-color);
-    border-color: var(--form-border);
-}
-body.dark-mode .select2-container--bootstrap-5 .select2-selection__choice {
-    background-color: var(--btn-bg);
-    color: var(--text-color);
-}
-/* Override Select2 styles for dark mode */
-body.dark-mode .select2-container--bootstrap-5 .select2-selection {
-background-color: var(--form-bg);
-border-color: var(--form-border);
-color: var(--text-color);
-}
-body.dark-mode .select2-container--bootstrap-5 .select2-selection__rendered {
-color: var(--text-color);
-}
-body.dark-mode .select2-container--bootstrap-5 .select2-results__option {
-background-color: var(--form-bg);
-color: var(--text-color);
-}
-body.dark-mode .select2-container--bootstrap-5 .select2-results__option--highlighted {
-background-color: var(--btn-bg);
-color: var(--text-color);
+/* Fix height & padding for single select in Bootstrap 5 */
+.select2-container--bootstrap-5 .select2-selection--single {
+    height: calc(2.25rem + 2px) !important; /* match .form-select height */
+    padding: 0.375rem 2rem 0.375rem 0.75rem !important;
+    line-height: 1.5 !important;
 }
 
-/* Override Bootstrap form controls for dark mode */
-body.dark-mode .form-control,
-body.dark-mode .form-select {
-background-color: var(--form-bg);
-border-color: var(--form-border);
-color: var(--text-color);
-}
-body.dark-mode .form-control::placeholder {
-color: var(--form-placeholder);
-}
-body.dark-mode .form-control:focus,
-body.dark-mode .form-select:focus {
-background-color: var(--form-bg);
-border-color: var(--link-color);
-color: var(--text-color);
-box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+/* Fix height for multiple select if enabled */
+.select2-container--bootstrap-5 .select2-selection--multiple {
+    min-height: calc(2.25rem + 2px) !important;
+    padding: 2px 0.25rem !important;
 }
 
-/* Map container styling */
+/* Adjust clear 'x' button position */
+.select2-container--bootstrap-5 .select2-selection__clear {
+    position: absolute !important;
+    right: 1.5rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 1rem !important;
+    color: var(--form-placeholder) !important;
+    cursor: pointer;
+}
+
+/* Make rendered text align nicely */
+.select2-container--bootstrap-5 .select2-selection__rendered {
+    line-height: 1.5 !important;
+    padding-left: 0 !important;
+}
 #map {
-height: 300px;
-margin-bottom: 1rem;
-border-radius: 0.375rem; /* Bootstrap rounded */
-border: 1px solid var(--form-border);
+  width: 100%;    /* or a fixed px/em value */
+  height: 400px;  /* set a height */
 }
-body.dark-mode #map {
-border-color: var(--btn-border);
-}
-body.dark-mode {
-  background-color: #121212;
-  color: #ffffff;
+/* For Bootstrap 5's dark theme */
+html[data-bs-theme="dark"] #locationStatus {
+    color: #fff; /* or a light readable shade */
 }
 
-/* Select2 dropdown fix for dark mode */
-body.dark-mode .select2-container--default .select2-selection--multiple,
-body.dark-mode .select2-container--default .select2-selection--single {
-  background-color: var(--form-bg);
-  border-color: var(--form-border);
-  color: var(--text-color);
+/* For your custom .dark-mode class */
+.dark-mode #locationStatus {
+    color: #fff;
+}
+/* Cards */
+.dashboard-card {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-body.dark-mode .select2-dropdown {
-  background-color: var(--form-bg);
-  border: 1px solid var(--form-border);
-  color: var(--text-color);
+/* Modals */
+.modal-themed {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+.modal-header-themed {
+    background: var(--nav-bg);
+    color: #fff;
+    border-bottom: 1px solid var(--card-border);
 }
 
-body.dark-mode .select2-results__option {
-  background-color: var(--form-bg);
-  color: var(--text-color);
+/* Tables inside modals */
+.themed-table thead {
+    background: var(--nav-bg);
+    color: #fff;
+}
+.themed-table tbody {
+    background: var(--form-bg);
+    color: var(--text-color);
+}
+.themed-table td, 
+.themed-table th {
+    border-color: var(--card-border) !important;
 }
 
-body.dark-mode .select2-results__option--highlighted {
-  background-color: var(--btn-bg);
-  color: var(--text-color);
+/* ✅ Ensure checked state is visible */
+.form-check-input:checked {
+  background-color: #0d6efd;   /* Bootstrap primary blue */
+  border-color: #0d6efd;
 }
 
-body.dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered,
-body.dark-mode .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-  color: var(--text-color);
+/* Optional: bigger size for better UI */
+.form-check-input {
+  width: 1.2em;
+  height: 1.2em;
+  margin-top: 0.3em;
 }
-
-body.dark-mode .select2-container--default .select2-selection--single .select2-selection__arrow b {
-  border-color: var(--text-color) transparent transparent transparent;
+body.dark-mode .form-check-input:checked {
+  background-color: #0dcaf0;  /* cyan for visibility */
+  border-color: #0dcaf0;
 }
-
-body.dark-mode .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  background-color: var(--btn-bg);
-  color: var(--text-color);
-  border: none;
-}
-
-/* Optional: Fix placeholder color */
-body.dark-mode .select2-container--default .select2-selection__placeholder {
-  color: var(--form-placeholder);
-}
-
-.custom-modal-overlay {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-.custom-modal-content {
-  background-color: var(--card-bg);
-  margin: 5% auto;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 700px;
-  position: relative;
-}
-
-.custom-modal-close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 24px;
-  cursor: pointer;
-}
-a#notificationDropdown::after {
-  display: none !important;
-}
-  .notif-unread {
-    font-weight: bold;
-    color: #212529;
-    background-color: #f8f9fa;
-  }
-
-  .notif-read {
-    color: #6c757d;
-  }
-
-  .dropdown-item:hover {
-    background-color: #e9ecef;
-  }

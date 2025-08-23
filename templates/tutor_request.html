@@ -70,10 +70,7 @@
           {{ form.latitude(class_="form-control d-none", id='latitude') }}
           {{ form.longitude(class_="form-control d-none", id='longitude') }}
 
-          <div class="mb-3">
-            <button type="button" class="btn btn-secondary mb-3" id="getLocationBtn">Use My Location</button>
-            <div id="locationStatus" class="form-text"></div>
-          </div>
+          
           <div id="map"></div>
 
           <!-- Your existing location button and locStatus message -->
@@ -155,13 +152,11 @@
         const response = await fetch(url);
         const data = await response.json();
 
-        console.log('Reverse geocode response', data); // Debug log
-
         if (data && data.display_name) {
           locStatus.textContent = `Selected address: ${data.display_name}`;
 
           if (addressTextArea) {
-            console.log('Updating address_text:', data.display_name); // Debug log
+
             addressTextArea.value = data.display_name;  // Force update every time
           }
         } else {

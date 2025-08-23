@@ -18,7 +18,7 @@
                 <strong>Classes:</strong> {{ req.student_classes }}<br>
                 <strong>Subjects:</strong> {{ req.subjects }}<br>
                 <strong>Preferred Days:</strong> {{ req.preferred_days or 'N/A' }}<br>
-                <strong>Address:</strong> {{ req.address or 'N/A' }}<br>
+                <strong>Address:</strong> {{ req.address_text or 'N/A' }}<br>
                 <strong>Status:</strong> <span class="badge bg-info text-dark">{{ req.status }}</span>
                 
               </p>
@@ -26,7 +26,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <button 
                     class="btn btn-outline-primary btn-sm" 
-                    onclick='showCustomMapModal({{ req.latitude }}, {{ req.longitude }}, {{ req.address | tojson | safe }})'>
+                    onclick='showCustomMapModal({{ req.latitude }}, {{ req.longitude }}, {{ req.address_text | tojson | safe }})'>
                     <i class="bi bi-map"></i>
                     View Map
                 </button>

@@ -5,20 +5,157 @@
   <div class="row">
     <!-- Profile Card -->
     <div class="col-md-4">
-      <div class="card text-center shadow-sm">
+      <!-- Profile Card -->
+      <div class="card text-center shadow-sm mb-3" style="background: var(--card-bg); border-radius: 12px;">
         <div class="card-body">
           {% if current_user.profile_picture %}
             <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}"
-                 class="rounded-circle mb-3" width="100" height="100" alt="Profile Picture">
+                 class="rounded-circle mb-3 border border-2" width="100" height="100" alt="Profile Picture" style="object-fit:cover;" 
+                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='uploads/default.jpg') }}';">
           {% else %}
-            <img src="{{ url_for('static', filename='default-avatar.png') }}"
-                 class="rounded-circle mb-3" width="100" height="100" alt="Default Picture">
+            <img src="{{ url_for('static', filename='uploads/default.jpg') }}"
+              class="rounded-circle mb-3 border border-2"
+              width="100" height="100"
+              alt="Profile Picture"
+              style="object-fit:cover;"
+              onerror="this.onerror=null; this.src='{{ url_for('static', filename='uploads/default.jpg') }}';">
           {% endif %}
-          <h5 class="card-title">{{ user.username }}</h5>
-          <p class="card-text text-muted">{{ user.role | capitalize }}</p>
-          <a href="{{ url_for('update_profile') }}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
+          <h5 class="card-title mb-1" style="font-weight:600;">{{ user.username }}</h5>
+          <p class="card-text text-muted mb-2" style="font-size: 1rem; color: var(--text-color) !important">{{ user.role | capitalize }}</p>
+          <a href="{{ url_for('update_profile') }}" class="btn btn-outline-primary btn-sm px-3">Edit Profile</a>
+          <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm px-3">Logout</a>
         </div>
       </div>
+      <!-- Today's Tuition Card -->
+      <div class="card shadow-sm" style="border-radius: 12px;">
+        <div class="card-body p-3">
+          {% if user.role == 'guardian' %}
+            {% if todays_guardian %}
+              <div class="alert alert-success mb-0" style="font-size: 0.97rem;">
+                <strong>{{ today_name }}'s Tuitions:</strong>
+                <ul class="mb-0 mt-2 ps-3">
+                  {% for t in todays_guardian %}
+                    <li>
+                      Tutor: <span class="fw-semibold">{{ t.tutor.username }}</span> — <span class="text-secondary">{% if t.start_time and t.end_time %}
+                                                                                  {{ t.start_time.strftime("%I:%M %p") }} - {{ t.end_time.strftime("%I:%M %p") }}
+                                                                              {% else %}
+                                                                                  time not set
+                                                                              {% endif %}
+                                                                              </span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% else %}
+              <div class="alert alert-warning mb-0" style="font-size: 0.97rem;">
+                No tuitions scheduled for {{ today_name }}.
+              </div>
+            {% endif %}
+          {% elif user.role == 'tutor' %}
+            {% if todays_tutor %}
+              <div class="alert alert-success mb-0" style="font-size: 0.97rem;">
+                <strong>{{ today_name }}'s Tuitions:</strong>
+                <ul class="mb-0 mt-2 ps-3"></ul>
+                  {% for t in todays_tutor %}
+                    <li>
+                      Guardian: <span class="fw-semibold">{{ t.guardian.username }}</span> — <span class="text-secondary">{% if t.start_time and t.end_time %}
+                                                                                                                              {{ t.start_time.strftime("%I:%M %p") }} - {{ t.end_time.strftime("%I:%M %p") }}
+                                                                                                                          {% else %}
+                                                                                                                              time not set
+                                                                                                                          {% endif %}
+                                                                                                                          </span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% else %}
+              <div class="alert alert-warning mb-0" style="font-size: 0.97rem;">
+                No tuitions scheduled for {{ today_name }}.
+              </div>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      
+      {% if user.role == 'guardian' %}
+      <div class="card shadow-sm mt-3" style="border-radius: 12px;">
+        <div class="card-body p-3" style="background: var(--card-bg);">
+          <h6 class="fw-semibold mb-3">My Active Tutor Requests</h6>
+          {% if active_tutor_requests %}
+            {% for req in active_tutor_requests %}
+              <div class="border rounded p-2 mb-2" style="background: var(--card-bg);">
+                <strong>Subjects:</strong> {{ req.subjects }}<br>
+                <small>Classes: {{ req.student_classes }} | Posted: {{ req.created_at.strftime('%Y-%m-%d') }}</small><br>
+                <button class="btn btn-sm btn-outline-info mt-1" data-bs-toggle="modal" data-bs-target="#requestModal{{ req.id }}">View Details</button>
+                <a href="{{ url_for('edit_tutor_request', request_id=req.id) }}" 
+                  class="btn btn-sm btn-outline-warning mt-1">
+                  Edit
+                </a>
+
+                <button class="btn btn-sm btn-outline-danger mt-1 delete-request" data-id="{{ req.id }}">Delete</button>
+              </div>
+
+              <!-- Modal -->
+              <div class="modal fade" id="requestModal{{ req.id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content" style="background: var(--card-bg);">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Tutor Request Details</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p><strong>Students:</strong> {{ req.students_number or 'N/A' }}</p>
+                          <p><strong>Subjects:</strong> {{ req.subjects }}</p>
+                          <p><strong>Classes:</strong> {{ req.student_classes }}</p>
+                          <p><strong>Preferred Days:</strong> {{ req.preferred_days or 'N/A' }}</p>
+                          <p><strong>Time:</strong> {{ req.teaching_time or 'N/A' }}</p>
+                          <p><strong>Salary:</strong> {{ req.salary or 'N/A' }}</p>
+                          <p><strong>Address:</strong> {{ req.address_text }}</p>
+                          
+                          <p><small>Posted on: {{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
+                        </div>
+                        <div class="col-md-6">
+                          {% if req.latitude and req.longitude %}
+                            <iframe
+                              width="100%"
+                              height="250"
+                              frameborder="0"
+                              style="border-radius: 8px;"
+                              src="https://www.google.com/maps?q={{ req.latitude }},{{ req.longitude }}&hl=en&z=14&output=embed">
+                            </iframe>
+                          {% else %}
+                            <p class="text-muted">No location available</p>
+                          {% endif %}
+                        </div>
+
+                      </div>
+                      <hr>
+                      <h6>Responded Tutors:</h6>
+                      {% if req.tutor_responses %}
+                        <ul>
+                        {% for resp in req.tutor_responses %}
+                          <li>{{ resp.tutor.username }} — Status: {{ resp.status }}</li>
+                        {% endfor %}
+                        </ul>
+                      {% else %}
+                        <em>No tutors have responded yet.</em>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              
+            {% endfor %}
+          {% else %}
+            <p class="text-muted mb-0" style="color: var(--text-color) !important;">You have no active tutor requests.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
     </div>
 
     <!-- Activity & Actions -->
@@ -28,20 +165,41 @@
           <strong>Account Overview</strong>
         </div>
         <div class="card-body">
-          {% if user.role == 'tutor' %}
-            <p class="mb-1">You can apply for tuition jobs near your location.</p>
-            <p>Status: 
-              {% if user.is_seeking_tuition %}
-                <span class="badge bg-success">Actively Seeking Tuition</span>
-              {% else %}
-                <span class="badge bg-secondary">Not Available</span>
-              {% endif %}
-            </p>
-          {% elif user.role == 'guardian' %}
-            <p class="mb-1">You can post your tuition needs and browse tutors.</p>
-            <a href="{{ url_for('tutor_request') }}" class="btn btn-primary">Create Tutor Request</a>
-          {% endif %}
-        </div>
+  {% if user.role == 'tutor' %}
+    <p class="mb-1">You can apply for tuition jobs near your location.</p>
+    <p>Status: 
+      {% if user.is_seeking_tuition %}
+        <span class="badge bg-success">Actively Seeking Tuition</span>
+      {% else %}
+        <span class="badge bg-secondary">Not Available</span>
+      {% endif %}
+    </p>
+    {% elif user.role == 'guardian' %}
+      <p class="mb-1">You can post your tuition needs and browse tutors.</p>
+      {% if user.email_verified %}
+        <a href="{{ url_for('tutor_request') }}" class="btn btn-primary">Create Tutor Request</a>
+      {% else %}
+        <p class="text-danger fw-bold">⚠ You must verify your email before posting a tutor request.</p>
+        <span class="badge bg-warning text-dark">Email Not Verified</span>
+      {% endif %}
+    {% endif %}
+
+    <!-- Common Badges (for all users) -->
+    <div class="mt-2">
+      {% if user.is_verified %}
+        <span class="badge bg-info">Verified User</span>
+      {% else %}
+        <span class="badge bg-secondary">Unverified User</span>
+      {% endif %}
+
+      {% if user.email_verified %}
+        <span class="badge bg-success">Email Verified</span>
+      {% else %}
+        <span class="badge bg-danger">Email Not Verified</span>
+      {% endif %}
+    </div>
+  </div>
+
       </div>
 
       <!-- Search Tutor Block -->
@@ -55,22 +213,23 @@
             <div class="row g-2 mb-2">
               <div class="col-md-4">
                 <label class="form-label">Division</label>
-                <select name="division_id" id="division" class="form-select">
+                <select name="division_id" id="division" class="form-select select2">
                   <option value="">All Divisions</option>
                   {% for div in divisions %}
                     <option value="{{ div.id }}">{{ div.name }}</option>
                   {% endfor %}
                 </select>
+
               </div>
               <div class="col-md-4">
                 <label class="form-label">District</label>
-                <select name="district_id" id="district" class="form-select">
+                <select name="district_id" id="district" class="form-select select2">
                   <option value="">All Districts</option>
                 </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Upazila</label>
-                <select name="upazila_id" id="upazila" class="form-select">
+                <select name="upazila_id" id="upazila" class="form-select select2">
                   <option value="">All Upazilas</option>
                 </select>
               </div>
@@ -79,7 +238,7 @@
             <div class="row g-2 mb-2">
               <div class="col-md-6">
                 <label class="form-label">Available Day</label>
-                <select id="available_day" name="day" class="form-select" multiple="multiple">
+                <select id="available_day" name="day" class="form-select" multiple="multiple" style="background-color: var(--card-bg) !important;">
                   <option value="Any" selected>Any</option>
                   <option value="Saturday">Saturday</option>
                   <option value="Sunday">Sunday</option>
@@ -160,16 +319,18 @@
             <div class="row g-2 mb-2">
               <div class="col-md-4">
                 <label class="form-label">Division</label>
-                <select name="division_id" id="tuition-division" class="form-select">
+                <select name="division_id" id="tuition-division" class="form-select select2-basic">
                   <option value="">All Divisions</option>
                   {% for div in divisions %}
                     <option value="{{ div.id }}">{{ div.name }}</option>
                   {% endfor %}
                 </select>
+
+
               </div>
               <div class="col-md-4">
                 <label class="form-label">District</label>
-                <select name="district_id" id="tuition-district" class="form-select">
+                <select name="district_id" id="tuition-district" class="form-select select2-basic">
                   <option value="">All Districts</option>
                 </select>
               </div>
@@ -206,6 +367,100 @@
             </div>
           </form>
           <div id="tuitionResults" class="mt-3 row"></div>
+        </div>
+      </div>
+      {% endif %}
+      
+
+
+      <!-- Active tuitions card (guardian) -->
+      {% if user.role == 'guardian' %}
+      <div class="card shadow-sm mt-3">
+        <div class="card-header"><strong>Your Active Tuitions (Guardian)</strong></div>
+        <div class="card-body" style="background-color: var(--card-bg); color: var(--text-color);">
+          {% if guardian_active %}
+            <ul class="list-group" style="background-color: var(--card-bg); color: var(--text-color);">
+              {% for t in guardian_active %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: var(--card-bg); color: var(--text-color);">
+                  <div>
+                    <strong>Tutor:</strong> <a href="{{ url_for('view_profile', user_id=t.tutor.id) }}">{{ t.tutor.username }}</a><br>
+
+                    <small>Days: {{ t.tution_days }}</small><br>
+                    <small>
+                      Time: 
+                      {{ t.start_time.strftime('%I:%M %p') if t.start_time else 'N/A' }} - 
+                      {{ t.end_time.strftime('%I:%M %p') if t.end_time else 'N/A' }} (UTC+6)
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <a href="{{ url_for('view_tuition', tuition_id=t.id) }}" class="btn btn-info btn-sm mb-1">Details</a>
+                    
+                    {% if t.delete_requested %}
+                      <div class="mb-1">
+                        <span class="badge bg-warning">Delete requested by {{ (t.delete_requested_by == current_user.id) and 'you' or t.tutor.username }}</span>
+                      </div>
+                      <!-- If other party requested, show respond buttons -->
+                      {% if t.delete_requested_by != current_user.id %}
+                        <button class="btn btn-success btn-sm respond-delete" data-id="{{ t.id }}" data-action="approve">Approve</button>
+                        <button class="btn btn-outline-secondary btn-sm respond-delete" data-id="{{ t.id }}" data-action="reject">Reject</button>
+                      {% else %}
+                        <button class="btn btn-danger btn-sm request-delete" data-id="{{ t.id }}">Cancel Request</button>
+                      {% endif %}
+                    {% else %}
+                      <button class="btn btn-danger btn-sm request-delete" data-id="{{ t.id }}">Request Delete</button>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No active tuitions.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Active tuitions card (tutor) -->
+      {% if user.role == 'tutor' %}
+      <div class="card shadow-sm mt-3">
+        <div class="card-header"><strong>Your Active Tuitions (Tutor)</strong></div>
+        <div class="card-body" style="background-color: var(--card-bg); color: var(--text-color);">
+          {% if tutor_active %}
+            <ul class="list-group" style="background-color: var(--card-bg); color: var(--text-color);">
+              {% for t in tutor_active %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: var(--card-bg); color: var(--text-color);">
+                  <div>
+                    <strong>Guardian:</strong> <a href="{{ url_for('view_profile', user_id=t.guardian.id) }}">{{ t.guardian.username }}</a><br>
+                    <small>Days: {{ t.tution_days }}</small><br>
+                    <small>
+                      Time: 
+                      {{ t.start_time.strftime('%I:%M %p') if t.start_time else 'N/A' }} - 
+                      {{ t.end_time.strftime('%I:%M %p') if t.end_time else 'N/A' }} (UTC+6)
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <a href="{{ url_for('view_tuition', tuition_id=t.id) }}" class="btn btn-info btn-sm mb-1">Details</a>
+
+                    {% if t.delete_requested %}
+                      <div class="mb-1">
+                        <span class="badge bg-warning">Delete requested by {{ (t.delete_requested_by == current_user.id) and 'you' or t.guardian.username }}</span>
+                      </div>
+                      {% if t.delete_requested_by != current_user.id %}
+                        <button class="btn btn-success btn-sm respond-delete" data-id="{{ t.id }}" data-action="approve">Approve</button>
+                        <button class="btn btn-outline-secondary btn-sm respond-delete" data-id="{{ t.id }}" data-action="reject">Reject</button>
+                      {% else %}
+                        <button class="btn btn-danger btn-sm request-delete" data-id="{{ t.id }}">Cancel Request</button>
+                      {% endif %}
+                    {% else %}
+                      <button class="btn btn-danger btn-sm request-delete" data-id="{{ t.id }}">Request Delete</button>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No active tuitions.</p>
+          {% endif %}
         </div>
       </div>
       {% endif %}
@@ -255,15 +510,7 @@
         <div class="modal-body">
           <input type="hidden" name="tutor_id" id="requestTutorId">
 
-          <div class="mb-2">
-            <label>Guardian Name</label>
-            <input type="text" name="guardian_name" class="form-control" required>
-          </div>
-
-          <div class="mb-2">
-            <label>Contact Info</label>
-            <input type="text" name="guardian_contact" class="form-control" required>
-          </div>
+          
 
           <div class="mb-2">
             <label>Preferred Classes</label>
@@ -316,8 +563,12 @@
           </div>
           <div class="mb-2">
             <label>Time Slot</label>
-            <input type="text" name="time_slots" class="form-control" placeholder="e.g., 5 PM - 7 PM">
+            <div class="d-flex gap-2">
+              <input type="time" name="start_time" class="form-control" required>
+              <input type="time" name="end_time" class="form-control" required>
+            </div>
           </div>
+
           <div class="mb-2">
             <label>Address</label>
             <textarea name="address" class="form-control" id="modal-address"></textarea>
@@ -338,9 +589,70 @@
     </form>
   </div>
 </div>
+<!-- Report Tuition Request Modal -->
+<div class="modal fade" id="reportRequestModal" tabindex="-1" aria-labelledby="reportRequestLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('report_tuition_request') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="reported_request_id" id="reportedRequestId">
 
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reportRequestLabel">Report Tuition Request</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Reason</label>
+            <select class="form-select select2-report-type" name="report_type" required>
+              <option value="">Select a reason</option>
+              <option value="spam">Spam</option>
+              <option value="fake_info">Fake Information</option>
+              <option value="inappropriate">Inappropriate Content</option>
+              <option value="other">Other</option>
+            </select>
+
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description (optional)</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Submit Report</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+
+$('#division').select2({
+  theme: 'bootstrap-5',
+  width: '100%',
+  placeholder: 'All divissions',
+  allowClear: true
+});
+
+$('#district').select2({
+  theme: 'bootstrap-5',
+  width: '100%',
+  allowClear: true
+});
+
+$('#upazila').select2({
+  theme: 'bootstrap-5',
+  width: '100%',
+  allowClear: true
+});
+
+
   $(document).ready(function () {
   $('#request-class, #request-subjects, #request-days').select2({
     dropdownParent: $('#sendRequestModal'),
@@ -437,7 +749,7 @@
           const container = document.getElementById('tutorResults');
           container.innerHTML = '';
           if (data.length === 0) {
-            container.innerHTML = '<p class="text-muted">No tutors found for selected filters.</p>';
+            container.innerHTML = '<p class="text-muted" style = "color: var(--text-color)!important">No tutors found for selected filters.</p>';
             return;
           }
           data.forEach(tutor => {
@@ -446,9 +758,15 @@
                 <div class="card shadow-sm">
                   <div class="card-body">
                     <div class="d-flex align-items-center mb-2">
-                      ${tutor.profile_picture ? `<img src="${tutor.profile_picture}" class="rounded-circle me-3" width="60">` : ''}
+                      ${tutor.profile_picture 
+                        ? `<img src="${tutor.profile_picture}" alt="Profile Picture" class="rounded-circle me-3" width="60" onerror="this.onerror=null; this.src='/static/uploads/default.jpg';">` 
+                        : '<img src="/static/uploads/default.jpg" alt="Profile Picture" class="rounded-circle me-3" width="60">'}
+                      
                       <div>
-                        <h5 class="mb-0">${tutor.name}</h5>
+                        <h5 class="mb-0">
+                          ${tutor.name}
+                          ${tutor.is_verified ? '<span class="badge bg-info ms-2">✔ Verified</span>' : ''}
+                        </h5>
                         <small class="text-muted">${tutor.division || ''}, ${tutor.district || ''}, ${tutor.upazila || ''}</small>
                       </div>
                     </div>
@@ -456,18 +774,20 @@
                     <p><strong>Time Slots:</strong> ${tutor.time_slots || 'N/A'}</p>
                     <p><strong>Available Days:</strong> ${tutor.available_days || 'N/A'}</p>
                     <p><strong>Expected Salary:</strong> ${tutor.salary_expectation || 'N/A'}</p>
+
                     <button class="btn btn-primary view-profile-btn" data-id="${tutor.id}">View Profile</button>
                     <button class="btn btn-success send-request-btn"
                             data-tutor-id="${tutor.id}"
                             data-name="${tutor.name}">
                         Send Tutor Request
                     </button>
-
                   </div>
                 </div>
               </div>
             `;
           });
+
+
         });
     });
   });
@@ -479,7 +799,9 @@
   const selectedClasses = $('#class-select').val() || [];
   const selectedSubjects = $('#subject-select').val() || [];
   const selectedDays = $('#available_day').val() || [];
-  const timeSlot = $('#time_slot').val() || ''; // Ensure this ID exists in your search form
+  
+  const startTime = $('start_time').val() || '';
+  const endTime = $('end_time').val() || '';
   const address = $('#address').val() || '';     // Ensure this ID exists in your search form
 
   // If your search form has coordinates
@@ -494,7 +816,8 @@
   $('#request-class').val(selectedClasses).trigger('change');
   $('#request-subjects').val(selectedSubjects).trigger('change');
   $('#request-days').val(selectedDays).trigger('change');
-  $('input[name="time_slots"]').val(timeSlot);
+  $('input[name="start_time"]').val(startTime);
+  $('input[name="end_time"]').val(endTime);
   $('textarea[name="address"]').val(address);
 
   // Show the modal
@@ -586,15 +909,21 @@ document.addEventListener('click', function (event) {
       .then(tutor => {
         const profilePicture = tutor.profile_picture 
           ? tutor.profile_picture
-          : '{{ url_for("static", filename="default-avatar.png") }}';
+          : '{{ url_for("static", filename="uploads/default.jpg") }}';
 
         const content = `
           <div class="row">
             <div class="col-md-4 text-center">
-              <img src="${profilePicture}" alt="Profile Picture" class="img-fluid rounded-circle mb-3 border shadow" style="max-width: 180px;">
+              <img src="${profilePicture}" 
+              alt="Profile Picture" 
+              class="img-fluid rounded-circle mb-3 border shadow" 
+              style="max-width: 180px;" 
+              onerror="this.onerror=null; this.src='/static/uploads/default.jpg';">
+
               <h5>${tutor.username}</h5>
               <p class="text-muted">${tutor.gender}</p>
             </div>
+            
             <div class="col-md-8">
               <p><strong>Email:</strong> ${tutor.email}</p>
               <p><strong>Phone:</strong> ${tutor.phone}</p>
@@ -635,24 +964,57 @@ document.addEventListener('click', function (event) {
       });
   }
 });
-
-// Load districts when division changes
-$('#tuition-division').on('change', function () {
-  const divisionId = $(this).val();
-  $('#tuition-district').html('<option value="">Loading...</option>');
-  if (divisionId) {
-    fetch(`/districts/${divisionId}`)
-      .then(res => res.json())
-      .then(data => {
-        $('#tuition-district').html('<option value="">All Districts</option>');
-        data.forEach(([id, name]) => {
-          $('#tuition-district').append(`<option value="${id}">${name}</option>`);
+$(document).ready(function () {
+    // When the modal is opened, initialize Select2 on the dropdown
+    $('#reportRequestModal').on('shown.bs.modal', function () {
+        $('.select2-report-type').select2({
+            placeholder: "Select a reason",
+            allowClear: true,
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $('#reportRequestModal') // important for modals
         });
-      });
-  } else {
-    $('#tuition-district').html('<option value="">All Districts</option>');
-  }
+    });
 });
+
+$(document).ready(function () {
+    // Initialize Select2 for Division & District with Bootstrap 5 theme
+    $('#tuition-division').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: "All divissions",
+        allowClear: true
+    });
+    $('#tuition-district').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: "All districts",
+        allowClear: true
+    });
+
+    // Load districts dynamically when division changes
+    $('#tuition-division').on('change', function () {
+        const divisionId = $(this).val();
+        $('#tuition-district').html('<option value="">Loading...</option>').trigger('change');
+
+        if (divisionId) {
+            fetch(`/districts/${divisionId}`)
+            .then(res => res.json())
+            .then(data => {
+                $('#tuition-district').html('<option value="">All Districts</option>');
+                data.forEach(([id, name]) => {
+                    $('#tuition-district').append(`<option value="${id}">${name}</option>`);
+                });
+
+                // Reinitialize Select2 so new options show up properly
+                $('#tuition-district').trigger('change');
+            });
+        } else {
+            $('#tuition-district').html('<option value="">All Districts</option>').trigger('change');
+        }
+    });
+});
+
 
 $(document).ready(function () {
   $('#available_days, #student_classes, #subjects').select2({
@@ -680,7 +1042,7 @@ $('#tuitionSearchForm').on('submit', function (e) {
       const container = document.getElementById('tuitionResults');
       container.innerHTML = '';
       if (data.length === 0) {
-        container.innerHTML = '<p class="text-muted">No tuition requests found.</p>';
+        container.innerHTML = '<p class="text-muted" style = "color: var(--text-color)!important">No tuition requests found.</p>';
         return;
       }
       data.forEach(req => {
@@ -689,6 +1051,7 @@ $('#tuitionSearchForm').on('submit', function (e) {
             <div class="card shadow-sm">
               <div class="card-body">
                 <h5 class="card-title">${req.subjects}</h5>
+                <p><strong>Guardian:</strong> <a href="/view_profile/${req.guardian_id}">${req.guardian_name}</a></p>
                 <p><strong>Classes:</strong> ${req.student_classes}</p>
                 <p><strong>Preferred Days:</strong> ${req.preferred_days}</p>
                 <p><strong>Salary:</strong> ${req.salary || 'Not specified'}</p>
@@ -696,14 +1059,22 @@ $('#tuitionSearchForm').on('submit', function (e) {
                 <p><strong>Location:</strong> ${req.address_text || req.district}</p>
                 <p><strong>Gender Preference:</strong> ${req.preferred_tutor_gender}</p>
                 <button class="btn btn-outline-primary btn-sm mt-2" onclick="viewTuitionDetails(${req.id})">View Details</button>
+                <button class="btn btn-success btn-sm mt-2" onclick="sendTuitionResponse(${req.id})">Send Response</button>
+                <button class="btn btn-danger btn-sm mt-2" onclick="openReportRequestModal(${req.id})">🚩 Report</button>
               </div>
             </div>
           </div>
         `;
-      });
+    });
+
     });
 });
 
+function openReportRequestModal(requestId) {
+    document.getElementById('reportedRequestId').value = requestId;
+    var modal = new bootstrap.Modal(document.getElementById('reportRequestModal'));
+    modal.show();
+}
 
 function viewTuitionDetails(id) {
   fetch(`/api/get_tuition_details/${id}`)
@@ -723,6 +1094,7 @@ function viewTuitionDetails(id) {
         <p><strong>Preferred Tutor Gender:</strong> ${d.preferred_tutor_gender}</p>
         <p><strong>Address:</strong> ${d.address_text} (${d.division}, ${d.district})</p>
         <p><strong>Contact:</strong> ${d.phone_number}</p>
+        <button class="btn btn-success mt-3" onclick="sendTuitionResponse(${d.id})">Send Tuition Details</button>
       `;
 
       document.getElementById('tuitionDetailContent').innerHTML = detailHtml;
@@ -749,7 +1121,94 @@ function viewTuitionDetails(id) {
       modal.show();
     });
 }
+function sendTuitionResponse(requestId) {
+  fetch(`/api/send_tuition_response/${requestId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken() // if CSRF is enabled
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert('Your details have been sent to the guardian!');
+    } else {
+      alert(data.error || 'Failed to send details.');
+    }
+  });
+}
+function getCSRFToken() {
+  return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+</script>
+<script>
+const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+const CSRF = csrfMeta ? csrfMeta.getAttribute('content') : null;
 
+function postJSON(url, payload) {
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(CSRF ? {'X-CSRFToken': CSRF} : {})
+    },
+    body: JSON.stringify(payload || {})
+  }).then(r => r.json());
+}
+
+// Request / cancel delete
+document.querySelectorAll('.request-delete').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const id = e.currentTarget.dataset.id;
+    if (!confirm("Send/cancel delete request for this tuition?")) return;
+    postJSON(`/request_tuition_delete/${id}`, {})
+      .then(resp => {
+        alert(resp.message || 'Done');
+        if (resp.status === 'success') location.reload();
+      }).catch(err => console.error(err));
+  });
+});
+
+// Respond (approve/reject)
+document.querySelectorAll('.respond-delete').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const id = e.currentTarget.dataset.id;
+    const action = e.currentTarget.dataset.action;
+    if (!confirm(`${action === 'approve' ? 'Approve' : 'Reject'} deletion?`)) return;
+    postJSON(`/respond_tuition_delete/${id}`, { action })
+      .then(resp => {
+        alert(resp.message || 'Done');
+        if (resp.status === 'success') location.reload();
+      }).catch(err => console.error(err));
+  });
+});
+
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+document.querySelectorAll('.delete-request').forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (!confirm("Are you sure you want to delete this request?")) return;
+
+    fetch(`/delete_tutor_request/${this.dataset.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        // Remove the request card without reload
+        this.closest('.border.rounded').remove();
+      } else {
+        alert(data.message || 'Error deleting request');
+      }
+    });
+  });
+});
 </script>
 
 

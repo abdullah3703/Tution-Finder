@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>{{ request.subjects }}</h3>
+<p><strong>Class:</strong> {{ request.student_classes }}</p>
+
+<h4>Responses from Tutors</h4>
+{% if request.tutor_responses %}
+  <ul class="list-group">
+    {% for resp in request.tutor_responses %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span><a href="{{ url_for('view_profile', user_id=resp.tutor.id) }}">{{ resp.tutor.username }}</a> - {{ resp.tutor.email }}</span>
+        <div>
+          <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#tutorModal{{ resp.id }}">View</button>
+          <button class="btn btn-sm btn-success" onclick="selectTutor({{ request.id }}, {{ resp.tutor.id }})">Select</button>
+        </div>
+      </li>
+
+      <!-- Tutor Details Modal -->
+      <div class="modal fade" id="tutorModal{{ resp.id }}" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-color);">
+            <div class="modal-header" style="background-color: var(--card-bg); color: var(--text-color);">
+              <h5 class="modal-title">{{ resp.tutor.username }}'s Profile</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Email:</strong> {{ resp.tutor.email }}</p>
+              <p><strong>Phone:</strong> {{ resp.tutor.phone_number }}</p>
+              <p><strong>Qualifications:</strong> {{ resp.tutor.qualifications }}</p>
+              <p><strong>Experience:</strong> {{ resp.tutor.experience }}</p>
+              <p><strong>Preferred Classes:</strong> {{ resp.tutor.preferred_classes }}</p>
+              <p><strong>Salary Expectation:</strong> {{ resp.tutor.salary_expectation }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-muted">No responses yet.</p>
+{% endif %}
+<!-- Select Tutor Modal -->
+<div class="modal fade" id="selectTutorModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-color);">
+      <div class="modal-header" style="background-color: var(--card-bg); color: var(--text-color);">
+        <h5 class="modal-title">Select Tutor & Schedule</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="selectTutorForm">
+          <input type="hidden" id="reqId">
+          <input type="hidden" id="tutorId">
+
+          <label>Days</label>
+          <select id="tuitionDays" name="tution_days" class="form-control" multiple>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+
+          <label class="mt-3">Start Time</label>
+          <input type="time" id="startTime" name="start_time" class="form-control">
+
+          <label class="mt-3">End Time</label>
+          <input type="time" id="endTime" name="end_time" class="form-control">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="submitSelectTutor()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include jQuery and Select2 CSS/JS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+
+
+$(document).ready(function() {
+    $('#tuitionDays').select2({
+        width: '100%',
+        placeholder: 'Select days',
+        allowClear: true,
+        dropdownParent: $('#selectTutorModal') // key fix
+    });
+});
+
+
+
+function selectTutor(requestId, tutorId) {
+    $('#reqId').val(requestId);
+    $('#tutorId').val(tutorId);
+    $('#selectTutorModal').modal('show');
+}
+
+function submitSelectTutor() {
+    let requestId = $('#reqId').val();
+    let tutorId = $('#tutorId').val();
+    let days = $('#tuitionDays').val();
+    let startTime = $('#startTime').val();
+    let endTime = $('#endTime').val();
+
+    if (!days || !startTime || !endTime) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    fetch(`/guardian/select_tutor/${requestId}/${tutorId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            tution_days: days.join(', '),
+            start_time: startTime,
+            end_time: endTime
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) {
+            window.location.href = "/dashboard";
+        }
+    });
+}
+</script>
+{% endblock %}

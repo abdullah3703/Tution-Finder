@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+
+  <h2 class="mb-4 text-center">Add New Admin</h2>
+
+  <div class="row">
+    <!-- Promote Existing User -->
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Promote Existing User</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('add_admin') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label for="user_id" class="form-label">Select User</label>
+              <select class="form-select select2" name="user_id" id="user_id" required>
+                <option value="" disabled selected>Choose a user...</option>
+                {% for u in users %}
+                  <option value="{{ u.id }}">
+                    {{ u.username }} ({{ u.email }}) - Role: {{ u.role }}
+                    {% if u.is_admin %}[Already Admin]{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">Promote to Admin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create New Admin -->
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Create a New Admin</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('create_admin') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" name="username" id="username" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" name="password" id="password" class="form-control" required>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-success">Create Admin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- jQuery + Select2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#user_id').select2({
+      theme: "bootstrap-5",
+      width: '100%',
+      placeholder: "Select a user",
+      allowClear: true
+    });
+  });
+</script>
+{% endblock %}

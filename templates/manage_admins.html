@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4 text-center">Manage Admin Users</h2>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for admin in admins %}
+          <tr>
+            <td>{{ admin.id }}</td>
+            <td><a href="{{ url_for('view_profile', user_id=admin.id) }}" target="_blank">{{ admin.username }}</a></td>
+            <td>{{ admin.email }}</td>
+            <td>{{ admin.role }}</td>
+            <td>
+              {% if admin.id != current_user.id %}
+                <form method="POST" action="{{ url_for('remove_admin', user_id=admin.id) }}" style="display:inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-sm btn-warning" onclick="return confirm('Remove admin privileges from this user?')">Remove Admin</button>
+                </form>
+              {% else %}
+                <em>You</em>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-muted">No admins found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

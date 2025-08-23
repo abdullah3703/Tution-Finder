@@ -115,68 +115,86 @@ class Upazila(db.Model):
 class TutorRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(
-        db.Integer, 
-        db.ForeignKey('user.id', ondelete="CASCADE"), 
-        nullable=False
-    )
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)  # guardian
+    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)  # optional
 
+    students_number = db.Column(db.Integer, nullable=True)
+    student_classes = db.Column(db.String(200), nullable=False)  # CSV
+    teaching_medium = db.Column(db.String(20), nullable=True)
+    subjects = db.Column(db.String(200), nullable=False)  # CSV
 
-    students_number = db.Column(db.Integer, nullable=False)
-    student_classes = db.Column(db.String(200), nullable=False)  # CSV string, e.g. "Class 5,Class 6"
-    teaching_medium = db.Column(db.String(20), nullable=False)  # "Bangla" or "EV"
-    subjects = db.Column(db.String(200), nullable=False)  # CSV string
+    starting_date = db.Column(db.Date, nullable=True)
+    preferred_days = db.Column(db.String(100), nullable=True)
+    teaching_time = db.Column(db.String(100))
+    salary = db.Column(db.String(50))
 
-    starting_date = db.Column(db.Date, nullable=False)
-    preferred_days = db.Column(db.String(100), nullable=False)  # CSV string, e.g. "Sat,Mon,Wed"
-    teaching_time = db.Column(db.String(100))  # Optional e.g. "5-7 PM"
-    salary = db.Column(db.String(50))  # Optional
-
-    address_text = db.Column(db.String(300))  # Extra location info
+    address_text = db.Column(db.String(300))
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
-    phone_number = db.Column(db.String(20), nullable=False)
-    preferred_tutor_gender = db.Column(db.String(10), default='any')  # "any", "male", "female"
+    phone_number = db.Column(db.String(20), nullable=True)
+    preferred_tutor_gender = db.Column(db.String(10), default='any')
+
+    guardian_name = db.Column(db.String(100))
+    guardian_contact = db.Column(db.String(100))
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    status = db.Column(db.String(20), default='pending')  # pending / accepted / rejected / found
 
-    status = db.Column(db.String(20), default='pending')  # e.g. 'pending' or 'found'
-
-    user = db.relationship('User', backref=db.backref('tutor_requests', passive_deletes=True))
-
-class TutorRequestInbox(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('tutor_requests', passive_deletes=True))
+    tutor = db.relationship('User', foreign_keys=[tutor_id])
     
+
+class TutorResponse(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     tutor_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    guardian_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    request_id = db.Column(db.Integer, db.ForeignKey('tutor_request.id', ondelete='CASCADE'), nullable=False)
 
-    student_classes = db.Column(db.String(100), nullable=False)  # CSV
-    subjects = db.Column(db.String(200), nullable=False)  # CSV
-    preferred_days = db.Column(db.String(100), nullable=True)
-    time_slots = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(20), default='pending')  # pending / accepted / rejected
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    guardian_name = db.Column(db.String(100), nullable=False)
-    guardian_contact = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(300), nullable=True)
+    tutor = db.relationship('User')
+    tutor_request = db.relationship('TutorRequest', backref=db.backref('tutor_responses', cascade="all, delete-orphan"))
 
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
-
-    status = db.Column(db.String(20), default='pending')  # 'pending', 'accepted', 'rejected'
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
 class ConfirmedTuition(db.Model):
     id = db.Column(db.String(10), primary_key=True)  # e.g., T00000001
     guardian_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tutor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    guardian_name = db.Column(db.String(100))
-    guardian_contact = db.Column(db.String(100))
+    
     student_classes = db.Column(db.String(200))
     subjects = db.Column(db.String(300))
     preferred_days = db.Column(db.String(100))
-    time_slots = db.Column(db.String(100))
+    
     address = db.Column(db.String(300))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
+    tution_days = db.Column(db.String(100))  # e.g., "Monday, Wednesday, Friday"
+    start_time = db.Column(db.DateTime, nullable=True)  # Start date and time of the tuition
+    end_time = db.Column(db.DateTime, nullable=True)  # End date and time
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    delete_requested = db.Column(db.Boolean, default=False, nullable=False)
+    delete_requested_by = db.Column(db.Integer, nullable=True)  # user.id who asked
+    delete_requested_at = db.Column(db.DateTime, nullable=True, default=None)
+
+
+
+
+class ReportToAdmin(db.Model):
+    __tablename__ = 'report_to_admin'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    reporter_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
+    reported_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=True)  # if reporting a user
+    reported_request_id = db.Column(db.Integer, db.ForeignKey('tutor_request.id', ondelete="CASCADE"), nullable=True)  # if reporting a post
+
+    report_type = db.Column(db.String(50), nullable=False)  # e.g., 'fake_profile', 'spam', 'inappropriate', etc.
+    description = db.Column(db.Text, nullable=True)  # Optional details
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    # Relationships
+    reporter = db.relationship('User', foreign_keys=[reporter_id], backref=db.backref('reports_made', passive_deletes=True))
+    reported_user = db.relationship('User', foreign_keys=[reported_user_id], backref=db.backref('reports_received', passive_deletes=True))
+    reported_request = db.relationship('TutorRequest', backref=db.backref('reports', cascade="all, delete-orphan"))
+

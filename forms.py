@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, SelectMultipleField, widgets, FloatField, IntegerField, DateField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, SelectMultipleField, widgets, FloatField, IntegerField, DateField, RadioField
 from wtforms.validators import DataRequired, Optional
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import DataRequired, Email, Length
@@ -34,14 +34,51 @@ class GuardianProfileForm(FlaskForm):
     student_name = StringField('Student Name', validators=[Optional()])
     student_class = SelectMultipleField(
         'Student Class(es)',
-        choices=[('Nursery', 'Nursery'), ('KG', 'KG'), ('Class 1', 'Class 1'), ('Class 2', 'Class 2'), ('Class 3', 'Class 3'), ('Class 4', 'Class 4'), ('Class 5', 'Class 5'), ('Class 6', 'Class 6'), ('Class 7', 'Class 7'), ('Class 8', 'Class 8'), ('Class 9', 'Class 9'), ('Class 10', 'Class 10'), ('Class 11', 'Class 11'), ('Class 12', 'Class 12')],
-        option_widget=widgets.CheckboxInput(),
-        widget=widgets.ListWidget(prefix_label=False),
+        choices=[
+            ('Nursery', 'Nursery'), ('KG', 'KG'), ('Class 1', 'Class 1'),
+            ('Class 2', 'Class 2'), ('Class 3', 'Class 3'), ('Class 4', 'Class 4'),
+            ('Class 5', 'Class 5'), ('Class 6', 'Class 6'), ('Class 7', 'Class 7'),
+            ('Class 8', 'Class 8'), ('Class 9', 'Class 9'), ('Class 10', 'Class 10'),
+            ('Class 11', 'Class 11'), ('Class 12', 'Class 12')
+        ],
         validators=[Optional()]
     )
+
     student_school = StringField('Student School', validators=[Optional()])
-    subjects = StringField('Subjects', validators=[Optional()])  # Comma-separated
-    preferred_gender = SelectField('Preferred Gender', choices=[('any', 'any'), ('male', 'male'), ('female', 'female')], validators=[Optional()])
+    subjects = SelectMultipleField(
+        'Subjects',
+        choices=[
+            ('Math', 'Math'),
+            ('English', 'English'),
+            ('Physics', 'Physics'),
+            ('Chemistry', 'Chemistry'),
+            ('Biology', 'Biology'),
+            ('Bangla', 'Bangla'),
+            ('History', 'History'),
+            ('Geography', 'Geography'),
+            ('ICT', 'ICT'),
+            ('Accounting', 'Accounting'),
+            ('Economics', 'Economics'),
+            ('Business Studies', 'Business Studies'),
+            ('Statistics', 'Statistics'),
+            ('Psychology', 'Psychology'),
+            ('Sociology', 'Sociology'),
+            ('Arts', 'Arts'),
+            ('Music', 'Music'),
+            ('Physical Education', 'Physical Education')
+        ],
+        validators=[Optional()]
+    )
+
+    preferred_gender = RadioField(
+        'Preferred Gender',
+        choices=[
+            ('any', 'Any'),
+            ('male', 'Male'),
+            ('female', 'Female')
+        ],
+        validators=[Optional()]
+    )
     medium = StringField('Medium', validators=[Optional()])  # e.g. "English", "Bengali"
     salary = StringField('Expected Salary', validators=[Optional()])  # e.g.
     NID_Birth_Certificate = FileField('NID / Birth Certificate (Image)', validators=[
