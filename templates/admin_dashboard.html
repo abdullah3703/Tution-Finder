@@ -2,12 +2,15 @@
 {% block content %}
 <div class="container mt-3">
 
-  <!-- Analytics Cards Row -->
+  <!-- =============================== -->
+  <!-- Dashboard Analytics Cards Row -->
+  <!-- Shows key stats at a glance -->
+  <!-- =============================== -->
   <div class="row text-center mb-4">
     <div class="col-md-3">
       <div class="card dashboard-card">
         <div class="card-body">
-          <h6>Active Users (Last 30 days)</h6>
+          <h6>Active Users</h6>
           <h2>{{ active_users_count }}</h2>
         </div>
       </div>
@@ -41,7 +44,10 @@
     </div>
   </div>
 
-  <!-- Area-wise demand summary -->
+  <!-- =============================== -->
+  <!-- Area-wise Tuition Demand Summary -->
+  <!-- Displays how many tuition requests exist per division -->
+  <!-- =============================== -->
   <div class="card mb-4">
     <div class="card-header">
       Area-wise Tuition Demand Summary
@@ -53,7 +59,10 @@
     </div>
   </div>
 
+  <!-- =============================== -->
   <!-- Control Buttons Row -->
+  <!-- Provides quick access to modals and pages -->
+  <!-- =============================== -->
   <div class="row text-center g-3 mb-4">
     <div class="col-md-3">
       <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#guardianModal">View Guardians</button>
@@ -72,14 +81,18 @@
     <div class="col-md-3">
       <a href="{{ url_for('add_admin') }}" class="btn btn-dark w-100">Add Admin</a>
     </div>
-    
     <div class="col-md-3">
-  <a href="{{ url_for('manage_admins') }}" class="btn btn-outline-primary w-100">Manage Admins</a>
-</div>
-
+      <a href="{{ url_for('view_all_feedbacks') }}" class="btn btn-outline-secondary w-100">View Feedbacks</a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('manage_admins') }}" class="btn btn-outline-primary w-100">Manage Admins</a>
+    </div>
   </div>
 
+  <!-- =============================== -->
   <!-- Reported Profiles Modal -->
+  <!-- Shows all reported users, with actions to view, delete, or clear report -->
+  <!-- =============================== -->
   <div class="modal fade" id="reportedProfilesModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content modal-themed">
@@ -109,12 +122,16 @@
                 <td>{{ r.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
                 <td>
                   {% if r.reported_user %}
-                    <a href="{{ url_for('view_profile', user_id=r.reported_user.id) }}" class="btn btn-sm btn-info" target="_blank">View Profile</a>
+                    <!-- View Profile / Delete User -->
+                    <a href="{{ url_for('view_profile', user_id=r.reported_user.id) }}"
+                       class="btn btn-sm btn-info" target="_blank">View Profile</a>
                     <form method="POST" action="{{ url_for('admin_delete_user', user_id=r.reported_user.id) }}" style="display:inline;">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete User</button>
                     </form>
                   {% endif %}
+
+                  <!-- Remove Report action -->
                   <form method="POST" action="{{ url_for('remove_report', report_id=r.id) }}" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-secondary" onclick="return confirm('Remove this report?')">Remove Report</button>
@@ -129,7 +146,10 @@
     </div>
   </div>
 
+  <!-- =============================== -->
   <!-- Reported Posts Modal -->
+  <!-- Shows all reported requests (posts), with actions -->
+  <!-- =============================== -->
   <div class="modal fade" id="reportedPostsModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content modal-themed">
@@ -159,11 +179,14 @@
                 <td>{{ r.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
                 <td>
                   {% if r.reported_request %}
+                    <!-- Delete Post -->
                     <form method="POST" action="{{ url_for('admin_delete_post', request_id=r.reported_request.id) }}" style="display:inline;">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this post?')">Delete Post</button>
                     </form>
                   {% endif %}
+
+                  <!-- Remove Report action -->
                   <form method="POST" action="{{ url_for('remove_report', report_id=r.id) }}" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-sm btn-secondary" onclick="return confirm('Remove this report?')">Remove Report</button>
@@ -178,7 +201,10 @@
     </div>
   </div>
 
+  <!-- =============================== -->
   <!-- Guardian Modal -->
+  <!-- Lists all guardians with verification & actions -->
+  <!-- =============================== -->
   <div class="modal fade" id="guardianModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content modal-themed">
@@ -208,11 +234,14 @@
                 <td>{{ g.student_name }} (Class: {{ g.student_class }})</td>
                 <td>
                   {% if g.NID_Birth_Certificate %}
-                  <a href="{{ url_for('static', filename='uploads/' + g.NID_Birth_Certificate) }}" target="_blank">View</a>
-                  {% else %} N/A {% endif %}
+                    <a href="{{ url_for('static', filename='uploads/' + g.NID_Birth_Certificate) }}" target="_blank">View</a>
+                  {% else %}
+                    N/A
+                  {% endif %}
                 </td>
                 <td>{{ 'Yes' if g.is_verified else 'No' }}</td>
                 <td>
+                  <!-- View profile & verify/unverify -->
                   <a href="{{ url_for('view_profile', user_id=g.id) }}" class="btn btn-sm btn-info" target="_blank">View Profile</a>
                   <form method="POST" action="{{ url_for('verify_user', user_id=g.id) }}" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -230,7 +259,10 @@
     </div>
   </div>
 
+  <!-- =============================== -->
   <!-- Tutor Modal -->
+  <!-- Lists all tutors with educational documents and verification controls -->
+  <!-- =============================== -->
   <div class="modal fade" id="tutorModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content modal-themed">
@@ -260,20 +292,21 @@
                 <td>{{ t.subjects }}</td>
                 <td>
                   {% if t.NID_Birth_Certificate %}
-                  NID: <a href="{{ url_for('static', filename='uploads/' + t.NID_Birth_Certificate) }}" target="_blank">View</a><br>
+                    NID: <a href="{{ url_for('static', filename='uploads/' + t.NID_Birth_Certificate) }}" target="_blank">View</a><br>
                   {% endif %}
                   {% if t.ssc_certificate %}
-                  SSC: <a href="{{ url_for('static', filename='uploads/' + t.ssc_certificate) }}" target="_blank">View</a><br>
+                    SSC: <a href="{{ url_for('static', filename='uploads/' + t.ssc_certificate) }}" target="_blank">View</a><br>
                   {% endif %}
                   {% if t.hsc_certificate %}
-                  HSC: <a href="{{ url_for('static', filename='uploads/' + t.hsc_certificate) }}" target="_blank">View</a><br>
+                    HSC: <a href="{{ url_for('static', filename='uploads/' + t.hsc_certificate) }}" target="_blank">View</a><br>
                   {% endif %}
                   {% if t.graduation_certificate %}
-                  Graduation: <a href="{{ url_for('static', filename='uploads/' + t.graduation_certificate) }}" target="_blank">View</a>
+                    Graduation: <a href="{{ url_for('static', filename='uploads/' + t.graduation_certificate) }}" target="_blank">View</a>
                   {% endif %}
                 </td>
                 <td>{{ 'Yes' if t.is_verified else 'No' }}</td>
                 <td>
+                  <!-- View profile & verify/unverify -->
                   <a href="{{ url_for('view_profile', user_id=t.id) }}" class="btn btn-sm btn-info" target="_blank">View Profile</a>
                   <form method="POST" action="{{ url_for('verify_user', user_id=t.id) }}" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

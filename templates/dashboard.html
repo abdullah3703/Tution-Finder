@@ -76,7 +76,73 @@
           {% endif %}
         </div>
       </div>
-      
+      <!-- Rating & Feedback Card -->
+      <div class="card shadow-sm mt-3" style="border-radius: 12px;">
+        <div class="card-body p-3" style="background: var(--card-bg);">
+          
+          <!-- Average rating -->
+          <h6 class="fw-semibold mb-2">Ratings & Feedback</h6>
+
+          {% if avg_rating %}
+            <p class="mb-1">
+              <strong>Average Rating:</strong>
+              <span class="text-warning">
+                {% for i in range(1, 6) %}
+                  {% if i <= avg_rating|round(0, 'floor') %} ★ {% else %} ☆ {% endif %}
+                {% endfor %}
+              </span>
+              <small>({{ "%.1f"|format(avg_rating) }} / 5)</small>
+            </p>
+          {% else %}
+            <p class="text-muted mb-3" style = "color: var(--text-color) !important;"><em>No ratings yet</em></p>
+          {% endif %}
+
+          <!-- Feedback received -->
+          <h6 class="mt-3 mb-2" style="font-size: 0.95rem;">Feedback Received:</h6>
+          {% if feedback_list %}
+            <div style="max-height: 120px; overflow-y: auto;">
+              {% for fb in feedback_list %}
+                <div class="border rounded p-2 mb-1" style="background: var(--card-bg); color: var(--text-color);">
+                  <strong>{{ fb.giver.username }}</strong>
+                  <span class="text-warning">
+                    {% for i in range(1, 6) %}
+                      {% if i <= fb.rating %} ★ {% else %} ☆ {% endif %}
+                    {% endfor %}
+                  </span>
+                  <br>
+                  <small style="color: var(--text-color) !important;">{{ fb.comment or 'No comment' }}</small>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <small class="text-muted" style = "color: var(--text-color) !important;">No feedback received yet.</small>
+          {% endif %}
+
+          <!-- Feedback given -->
+          <h6 class="mt-4 mb-2" style="font-size: 0.95rem;">My Given Feedbacks:</h6>
+          {% if feedback_given %}
+            <div style="max-height: 120px; overflow-y: auto;">
+              {% for fb in feedback_given %}
+                <div class="border rounded p-2 mb-1" style="background: var(--card-bg); color: var(--text-color);">
+                  <strong>To: {{ fb.receiver.username }}</strong>
+                  <span class="text-warning">
+                    {% for i in range(1, 6) %}
+                      {% if i <= fb.rating %} ★ {% else %} ☆ {% endif %}
+                    {% endfor %}
+                  </span>
+                  <br>
+                  <small style="color: var(--text-color) !important;">{{ fb.comment or 'No comment' }}</small>
+                  <br>
+                  <a href="{{ url_for('give_feedback', user_id=fb.receiver.id) }}" class="btn btn-sm btn-outline-warning mt-1">Update</a>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <small class="text-muted" style = "color: var(--text-color) !important;">You haven't given any feedback yet.</small>
+          {% endif %}
+
+        </div>
+      </div>
       {% if user.role == 'guardian' %}
       <div class="card shadow-sm mt-3" style="border-radius: 12px;">
         <div class="card-body p-3" style="background: var(--card-bg);">
@@ -200,8 +266,6 @@
     </div>
   </div>
 
-      </div>
-
       <!-- Search Tutor Block -->
       {% if user.role == 'guardian' %}
       <div class="card shadow-sm">
@@ -297,6 +361,28 @@
                   </select>
                 </div>
               </div>
+              <!-- Gender Preference Select (search by tutor gender) -->
+              <div class="col-md-4">
+                <label class="form-label">Tutor Gender</label>
+                <select name="gender_preference" id="gender_preference" class="form-select select2">
+                  <option value="">Any</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="others">Others</option>
+                </select>
+              </div>
+
+              <!-- Medium Select -->
+              <div class="col-md-4">
+                <label class="form-label">Teaching Medium</label>
+                <select name="medium" id="medium" class="form-select select2">
+                  <option value="">Any</option>
+                  <option value="Bangla">Bangla</option>
+                  <option value="English">English</option>
+                  
+                </select>
+              </div>
+
               <div class="col-md-6 d-flex align-items-end">
                 <button type="submit" class="btn btn-success w-100">Search</button>
               </div>
@@ -546,6 +632,7 @@
               <option>Accounting</option>
               <option>Economics</option>
               <option>Business Studies</option>
+              <option>Statistics</option>
             </select>
           </div>
 
@@ -651,6 +738,8 @@ $('#upazila').select2({
   width: '100%',
   allowClear: true
 });
+$('#gender_preference').select2({ width: '100%' });
+$('#medium').select2({ width: '100%' });
 
 
   $(document).ready(function () {
@@ -781,12 +870,16 @@ $('#upazila').select2({
                             data-name="${tutor.name}">
                         Send Tutor Request
                     </button>
+                    <button class="btn btn-info text-white chat-btn"
+                            data-tutor-id="${tutor.id}"
+                            data-name="${tutor.name}">
+                        Chat
+                    </button>
                   </div>
                 </div>
               </div>
             `;
           });
-
 
         });
     });
@@ -828,11 +921,15 @@ $('#sendRequestForm').on('submit', function (e) {
   e.preventDefault(); // Prevent default form submission
 
   const formData = $(this).serialize(); // Serialize form fields
+  const csrfToken = $('meta[name="csrf-token"]').attr('content'); // Get token from meta
 
   $.ajax({
     url: '/send_tutor_request',
     type: 'POST',
-    data: $(this).serialize(),
+    data: formData,
+    headers: {
+      'X-CSRFToken': csrfToken   // Flask/WTF expects this header
+    },
     success: function (response) {
       if (response.status === 'success') {
         // Optionally show success message
@@ -847,6 +944,7 @@ $('#sendRequestForm').on('submit', function (e) {
     }
   });
 });
+
 
 let map, marker;
 
@@ -904,66 +1002,122 @@ $('#fillAddressBtn').on('click', function () {
 document.addEventListener('click', function (event) {
   if (event.target.classList.contains('view-profile-btn')) {
     const tutorId = event.target.getAttribute('data-id');
+    
     fetch(`/api/tutor/${tutorId}`)
       .then(response => response.json())
       .then(tutor => {
+        
+        // Helper for handling missing info
+        const safe = (val) => val && val.trim() !== "" ? val : "N/A";
+
+        // Profile Picture fallback
         const profilePicture = tutor.profile_picture 
           ? tutor.profile_picture
-          : '{{ url_for("static", filename="uploads/default.jpg") }}';
+          : "/static/uploads/default.jpg";
+
+        // Verification badges
+        const verifiedBadge = tutor.is_verified 
+          ? `<span class="badge bg-success ms-2">Verified</span>` 
+          : `<span class="badge bg-secondary ms-2">Not Verified</span>`;
+
+        const emailBadge = tutor.email_verified
+          ? `<span class="badge bg-success ms-2">Email Verified</span>`
+          : `<span class="badge bg-danger ms-2">Email Not Verified</span>`;
+
+        const nidBadge = tutor.NID_Birth_Certificate 
+          ? `<span class="badge bg-info ms-2">NID/BC Uploaded</span>`
+          : `<span class="badge bg-warning text-dark ms-2">NID/BC Missing</span>`;
 
         const content = `
-          <div class="row">
-            <div class="col-md-4 text-center">
-              <img src="${profilePicture}" 
-              alt="Profile Picture" 
-              class="img-fluid rounded-circle mb-3 border shadow" 
-              style="max-width: 180px;" 
-              onerror="this.onerror=null; this.src='/static/uploads/default.jpg';">
-
-              <h5>${tutor.username}</h5>
-              <p class="text-muted">${tutor.gender}</p>
+          <div class="container">
+            <!-- Profile header -->
+            <div class="row mb-3 text-center">
+              <div class="col-md-12">
+                <img src="${profilePicture}" 
+                    alt="Profile Picture" 
+                    class="img-fluid rounded-circle mb-2 border shadow" 
+                    style="max-width: 150px;"
+                    onerror="this.onerror=null; this.src='/static/uploads/default.jpg';">
+                <h4 class="mt-2">${safe(tutor.username)} ${verifiedBadge}</h4>
+                <p class="text-muted">${safe(tutor.gender)}</p>
+                <div>${emailBadge} ${nidBadge}</div>
+              </div>
             </div>
-            
-            <div class="col-md-8">
-              <p><strong>Email:</strong> ${tutor.email}</p>
-              <p><strong>Phone:</strong> ${tutor.phone}</p>
-              <p><strong>Address:</strong> ${tutor.upazila}, ${tutor.district}, ${tutor.division}</p>
-              <p><strong>Preferred Classes:</strong> ${tutor.preferred_classes}</p>
-              <hr>
-              <h6>Educational Qualifications</h6>
 
-              <div class="mb-3">
-                <strong>SSC:</strong>
-                <p>Institute: ${tutor.ssc.institute}</p>
-                <p>Result: ${tutor.ssc.result}</p>
-                <p>Group: ${tutor.ssc.group}</p>
-                
+            <div class="row">
+              <!-- Contact Info -->
+              <div class="col-md-6 mb-3">
+                <div class="card p-3 shadow-sm">
+                  <h6 class="mb-2">Contact Information</h6>
+                  <p><strong>Email:</strong> ${safe(tutor.email)}</p>
+                  <p><strong>Phone:</strong> ${safe(tutor.phone)}</p>
+                  <p><strong>Address:</strong> 
+                    ${safe(tutor.upazila)}, ${safe(tutor.district)}, ${safe(tutor.division)}</p>
+                </div>
               </div>
 
-              <div class="mb-3">
-                <strong>HSC:</strong>
-                <p>Institute: ${tutor.hsc.institute}</p>
-                <p>Result: ${tutor.hsc.result}</p>
-                <p>Group: ${tutor.hsc.group}</p>
-                
+              <!-- Preferences -->
+              <div class="col-md-6 mb-3">
+                <div class="card p-3 shadow-sm">
+                  <h6 class="mb-2">Preferences</h6>
+                  <p><strong>Preferred Classes:</strong> ${safe(tutor.preferred_classes)}</p>
+                  <p><strong>Expected Salary:</strong> ${safe(tutor.salary_expectation)}</p>
+                  <p><strong>Available Days:</strong> ${safe(tutor.available_days)}</p>
+                  <p><strong>Time Slots:</strong> ${safe(tutor.time_slots)}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Education Section -->
+            <div class="card p-3 shadow-sm mb-3">
+              <h6 class="mb-2">Educational Qualifications</h6>
+              
+              <div class="mb-2">
+                <strong>SSC:</strong><br>
+                Institute: ${safe(tutor.ssc.institute)}<br>
+                Result: ${safe(tutor.ssc.result)}<br>
+                Group: ${safe(tutor.ssc.group)}
               </div>
 
-              <div class="mb-3">
-                <strong>Graduation:</strong>
-                <p>Institute: ${tutor.graduation.institute}</p>
-                <p>Result: ${tutor.graduation.result}</p>
-                <p>Group: ${tutor.graduation.group}</p>
-                
+              <div class="mb-2">
+                <strong>HSC:</strong><br>
+                Institute: ${safe(tutor.hsc.institute)}<br>
+                Result: ${safe(tutor.hsc.result)}<br>
+                Group: ${safe(tutor.hsc.group)}
               </div>
+
+              <div class="mb-2">
+                <strong>Graduation:</strong><br>
+                Institute: ${safe(tutor.graduation.institute)}<br>
+                Result: ${safe(tutor.graduation.result)}<br>
+                Subject: ${safe(tutor.graduation.group)}
+              </div>
+            </div>
+
+            <!-- Experience -->
+            <div class="card p-3 shadow-sm mb-3">
+              <h6 class="mb-2">Experience & About</h6>
+              <p>${safe(tutor.experience)}</p>
+            </div>
+
+            <!-- Chat button -->
+            <div class="text-end">
+              <button class="btn btn-info text-white chat-btn"
+                      data-tutor-id="${tutor.id}"
+                      data-name="${tutor.username}">
+                Chat
+              </button>
             </div>
           </div>
         `;
+
         document.getElementById('tutorProfileContent').innerHTML = content;
         const profileModal = new bootstrap.Modal(document.getElementById('tutorProfileModal'));
         profileModal.show();
       });
   }
 });
+
 $(document).ready(function () {
     // When the modal is opened, initialize Select2 on the dropdown
     $('#reportRequestModal').on('shown.bs.modal', function () {
@@ -1059,6 +1213,7 @@ $('#tuitionSearchForm').on('submit', function (e) {
                 <p><strong>Location:</strong> ${req.address_text || req.district}</p>
                 <p><strong>Gender Preference:</strong> ${req.preferred_tutor_gender}</p>
                 <button class="btn btn-outline-primary btn-sm mt-2" onclick="viewTuitionDetails(${req.id})">View Details</button>
+                <button class="btn btn-info text-white chat-btn btn-sm mt-2" data-tutor-id="${req.guardian_id}" data-name="${req.guardian_name}">Chat</button>
                 <button class="btn btn-success btn-sm mt-2" onclick="sendTuitionResponse(${req.id})">Send Response</button>
                 <button class="btn btn-danger btn-sm mt-2" onclick="openReportRequestModal(${req.id})">🚩 Report</button>
               </div>

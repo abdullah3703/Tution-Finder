@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+
+  <!-- =============================== -->
+  <!-- Page Title -->
+  <!-- =============================== -->
+  <h2 class="mb-4 text-center">All User Feedbacks</h2>
+
+  <!-- =============================== -->
+  <!-- Feedbacks Table Section -->
+  <!-- Displays all user-to-user ratings and comments -->
+  <!-- =============================== -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Giver</th>
+            <th scope="col">Receiver</th>
+            <th scope="col">Rating</th>
+            <th scope="col">Comment</th>
+            <th scope="col">Date</th>
+            <th scope="col" style="width: 150px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in feedbacks %}
+          <tr>
+            <!-- Feedback ID -->
+            <td>{{ f.id }}</td>
+
+            <!-- Feedback Giver -->
+            <td>
+              {% if f.giver %}
+                <a href="{{ url_for('view_profile', user_id=f.giver.id) }}" target="_blank">
+                  {{ f.giver.username }}
+                </a>
+              {% else %}
+                Deleted User
+              {% endif %}
+            </td>
+
+            <!-- Feedback Receiver -->
+            <td>
+              {% if f.receiver %}
+                <a href="{{ url_for('view_profile', user_id=f.receiver.id) }}" target="_blank">
+                  {{ f.receiver.username }}
+                </a>
+              {% else %}
+                Deleted User
+              {% endif %}
+            </td>
+
+            <!-- Rating stars -->
+            <td>
+              {% for i in range(1, 6) %}
+                {% if i <= f.rating %}
+                  <span style="color:gold;">★</span>
+                {% else %}
+                  <span style="color:#ccc;">☆</span>
+                {% endif %}
+              {% endfor %}
+              ({{ f.rating }}/5)
+            </td>
+
+            <!-- Comment -->
+            <td>{{ f.comment or "-" }}</td>
+
+            <!-- Feedback Date -->
+            <td>{{ f.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+
+            <!-- Actions: Delete Feedback -->
+            <td>
+              <form method="POST" action="{{ url_for('delete_feedback', feedback_id=f.id) }}" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this feedback?')">
+                  Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <!-- Case: No feedbacks -->
+          <tr>
+            <td colspan="7" class="text-center text-muted">No feedbacks found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

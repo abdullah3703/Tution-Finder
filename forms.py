@@ -39,7 +39,7 @@ class GuardianProfileForm(FlaskForm):
             ('Class 2', 'Class 2'), ('Class 3', 'Class 3'), ('Class 4', 'Class 4'),
             ('Class 5', 'Class 5'), ('Class 6', 'Class 6'), ('Class 7', 'Class 7'),
             ('Class 8', 'Class 8'), ('Class 9', 'Class 9'), ('Class 10', 'Class 10'),
-            ('Class 11', 'Class 11'), ('Class 12', 'Class 12')
+            ('Class 11', 'Class 11'), ('Class 12', 'Class 12'), ('A Level', 'A Level')
         ],
         validators=[Optional()]
     )
@@ -79,7 +79,7 @@ class GuardianProfileForm(FlaskForm):
         ],
         validators=[Optional()]
     )
-    medium = StringField('Medium', validators=[Optional()])  # e.g. "English", "Bengali"
+    medium = StringField('Medium e.g. "English"/"Bengali"', validators=[Optional()])  # e.g. "English", "Bengali"
     salary = StringField('Expected Salary', validators=[Optional()])  # e.g.
     NID_Birth_Certificate = FileField('NID / Birth Certificate (Image)', validators=[
         Optional(),
@@ -133,6 +133,11 @@ class TutorProfileForm(FlaskForm):
         ('Class 10', 'Class 10'), ('Class 11', 'Class 11'), ('Class 12', 'Class 12')
     ],
     validators=[Optional()]
+    )
+    medium = SelectField(
+        'Medium',
+        choices=[('Bangla', 'Bangla'), ('English', 'English')],
+        validators=[Optional()]
     )
     # SSC
     ssc_institute = StringField('SSC Institute', validators=[Optional()])

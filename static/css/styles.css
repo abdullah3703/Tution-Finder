@@ -594,7 +594,140 @@ html[data-bs-theme="dark"] #locationStatus {
 .themed-table th {
     border-color: var(--card-border) !important;
 }
+/* Custom Floating Chat Modal */
+#chatModal.modal {
+    position: fixed !important;
+    left: 1100px!important;
+    bottom: 0;
+    margin: 0;
+    top: auto;
+    width: 350px;
+    height: 650px!important;
+    pointer-events: auto;
+    z-index: 99999; /* Above everything */
+}
 
+/* Remove the default full-screen modal-dialog alignment */
+#chatModal .modal-dialog {
+    margin: 0;
+    height: auto;
+    max-height: 500px;
+}
+
+/* Facebook-style floating chat modal */
+.chat-fb-dialog {
+  position: fixed !important;
+  right: 32px !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  width: 350px;
+  max-width: 60vw;
+  pointer-events: auto;
+  z-index: 99999;
+}
+
+.chat-fb-content {
+  display: flex;
+  flex-direction: column;
+  height: 470px; /* or your preferred height */
+  background: var(--bg-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+  overflow: hidden; /* Important to clip content */
+}
+
+.chat-fb-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.8rem 0.9rem;
+  min-height: 80px;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--card-border, #e9ecef);
+}
+
+.chat-fb-footer {
+  flex-shrink: 0; /* Keep footer height fixed */
+  background: var(--bg-color);
+  border-top: 1px solid var(--card-border, #e9ecef);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  padding: 0.55rem 0.9rem 0.55rem 0.7rem;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+
+.chat-fb-header {
+  background: #1877f2;
+  color: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  padding: 9px 20px;
+  min-height: 48px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-fb-dialog {
+  height: 550px;
+  max-height: 90vh; /* So it doesn't overflow screen */
+}
+
+.chat-message-mine {
+  background: linear-gradient(135deg, #1877f2 0%, #3bb3f2 100%);
+  color: #fff;
+  align-self: flex-end;
+  border-radius: 18px 18px 4px 18px;
+  padding: 8px 13px;
+  margin-bottom: 8px;
+  max-width: 75%;
+  word-break: break-word;
+}
+
+.chat-message-their {
+  background: linear-gradient(135deg, #eceff1 0%, #fff 100%);
+  color: #212529;
+  align-self: flex-start;
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid #e4e6eb;
+  padding: 8px 13px;
+  margin-bottom: 8px;
+  max-width: 75%;
+  word-break: break-word;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* If no messages, center text and show muted color */
+.chat-fb-body.no-messages {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:80px;
+  color:#888;
+  font-size:1rem;
+}
+
+#chatImagePreview {
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+/* Ensures good visibility on both light/dark modes */
+.chat-dropdown-item {
+  background-color: var(--card-bg) !important;    /* White background */
+  color: var(--text-color) !important;               /* Dark text */
+}
+
+.chat-dropdown-item .text-muted {
+  color: #595959 !important;            /* Slightly darker muted color for better contrast */
+}
+.unread-chat {
+    font-weight: bold;
+    background-color: rgba(255, 0, 0, 0.1); /* faint red highlight */
+}
 /* ✅ Ensure checked state is visible */
 .form-check-input:checked {
   background-color: #0d6efd;   /* Bootstrap primary blue */

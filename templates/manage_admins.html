@@ -1,10 +1,20 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="container mt-4">
+
+  <!-- =============================== -->
+  <!-- Page Title -->
+  <!-- =============================== -->
   <h2 class="mb-4 text-center">Manage Admin Users</h2>
 
+  <!-- =============================== -->
+  <!-- Admins Table Card -->
+  <!-- =============================== -->
   <div class="card shadow-sm">
     <div class="card-body">
+
+      <!-- Admins Table -->
       <table class="table table-bordered table-hover align-middle">
         <thead class="table-light">
           <tr>
@@ -18,22 +28,35 @@
         <tbody>
           {% for admin in admins %}
           <tr>
+            <!-- Admin Data -->
             <td>{{ admin.id }}</td>
-            <td><a href="{{ url_for('view_profile', user_id=admin.id) }}" target="_blank">{{ admin.username }}</a></td>
+            <td>
+              <a href="{{ url_for('view_profile', user_id=admin.id) }}" target="_blank">
+                {{ admin.username }}
+              </a>
+            </td>
             <td>{{ admin.email }}</td>
             <td>{{ admin.role }}</td>
             <td>
+              <!-- Action Buttons -->
               {% if admin.id != current_user.id %}
+                <!-- Remove Admin (protected with CSRF + confirm prompt) -->
                 <form method="POST" action="{{ url_for('remove_admin', user_id=admin.id) }}" style="display:inline;">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button class="btn btn-sm btn-warning" onclick="return confirm('Remove admin privileges from this user?')">Remove Admin</button>
+                  <button class="btn btn-sm btn-warning"
+                          onclick="return confirm('Remove admin privileges from this user?')">
+                    Remove Admin
+                  </button>
                 </form>
               {% else %}
+                <!-- Current logged in admin cannot remove themselves -->
                 <em>You</em>
               {% endif %}
             </td>
           </tr>
+
           {% else %}
+          <!-- Case: No Admins in list -->
           <tr>
             <td colspan="5" class="text-center text-muted">No admins found.</td>
           </tr>
@@ -42,6 +65,5 @@
       </table>
     </div>
   </div>
-
 </div>
 {% endblock %}

@@ -3,81 +3,100 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-8">
+
+      <!-- =============================== -->
+      <!-- Tutor Request Form Card -->
+      <!-- =============================== -->
       <div class="card shadow-sm p-4">
         <h2 class="mb-4 text-center">Post a Tutor Request</h2>
+
+        <!-- Form Section -->
         <form method="POST" novalidate>
           {{ form.hidden_tag() }}
 
+          <!-- Number of Students -->
           <div class="mb-3">
             {{ form.students_number.label(class_="form-label") }}
             {{ form.students_number(class_="form-control") }}
           </div>
 
+          <!-- Student Classes -->
           <div class="mb-3">
             {{ form.student_classes.label(class_="form-label") }}
-            {{ form.student_classes(class_="form-select", id="studentClassesSelect", multiple=True) }}
+            {{ form.student_classes(class_="form-select select2", id="studentClassesSelect", multiple=True) }}
             <small class="text-muted">Select one or more classes</small>
           </div>
 
+          <!-- Teaching Medium -->
           <div class="mb-3">
             {{ form.teaching_medium.label(class_="form-label") }}
-            {{ form.teaching_medium(class_="form-select") }}
+            {{ form.teaching_medium(class_="form-select select2") }}
           </div>
 
+          <!-- Subjects -->
           <div class="mb-3">
             {{ form.subjects.label(class_="form-label") }}
-            {{ form.subjects(class_="form-select", id="subjectsSelect", multiple=True) }}
+            {{ form.subjects(class_="form-select select2", id="subjectsSelect", multiple=True) }}
             <small class="text-muted">Select one or more subjects</small>
           </div>
 
+          <!-- Starting Date -->
           <div class="mb-3">
             {{ form.starting_date.label(class_="form-label") }}
             {{ form.starting_date(class_="form-control", type="date") }}
           </div>
 
+          <!-- Preferred Days -->
           <div class="mb-3">
             {{ form.preferred_days.label(class_="form-label") }}
-            {{ form.preferred_days(class_="form-select", id="daysSelect", multiple=True) }}
+            {{ form.preferred_days(class_="form-select select2", id="daysSelect", multiple=True) }}
             <small class="text-muted">Select preferred days</small>
           </div>
 
+          <!-- Teaching Time -->
           <div class="mb-3">
             {{ form.teaching_time.label(class_="form-label") }}
             {{ form.teaching_time(class_="form-control", placeholder="E.g. Mon-Fri 5-7 PM") }}
           </div>
 
+          <!-- Salary Range -->
           <div class="mb-3">
             {{ form.salary.label(class_="form-label") }}
             {{ form.salary(class_="form-control", placeholder="E.g. 5000-7000 BDT") }}
           </div>
 
+          <!-- Phone Number -->
           <div class="mb-3">
             {{ form.phone_number.label(class_="form-label") }}
             {{ form.phone_number(class_="form-control") }}
           </div>
 
+          <!-- Tutor Gender Preference -->
           <div class="mb-3">
             {{ form.preferred_tutor_gender.label(class_="form-label") }}
-            {{ form.preferred_tutor_gender(class_="form-select") }}
+            {{ form.preferred_tutor_gender(class_="form-select select2") }}
           </div>
 
+          <!-- Address -->
           <div class="mb-3">
             {{ form.address_text.label(class_="form-label") }}
             {{ form.address_text(class_="form-control", placeholder="Extra location details (optional)", rows="3") }}
           </div>
 
-          <!-- Hidden fields (latitude and longitude) -->
+          <!-- Hidden Latitude/Longitude -->
           {{ form.latitude(class_="form-control d-none", id='latitude') }}
           {{ form.longitude(class_="form-control d-none", id='longitude') }}
 
-          
+          <!-- Map Section -->
           <div id="map"></div>
 
-          <!-- Your existing location button and locStatus message -->
+          <!-- Location Button & Status -->
           <div class="mb-3">
             <button type="button" class="btn btn-secondary mb-3" id="getLocationBtn">Use My Location</button>
             <div id="locationStatus" class="form-text"></div>
           </div>
+
+          <!-- Submit Button -->
           <div class="text-end">
             {{ form.submit(class_="btn btn-primary px-5") }}
           </div>
@@ -87,19 +106,19 @@
   </div>
 </div>
 
-<!-- Include jQuery and Select2 CSS/JS -->
+<!-- =============================== -->
+<!-- Select2 + Leaflet Dependencies -->
+<!-- =============================== -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-></script>
 <script>
   $(document).ready(function () {
-    // Initialize Select2 for multi-select fields with bootstrap-5 theme
+    /* ===========================
+       Initialize Select2
+       =========================== */
     $('#studentClassesSelect, #subjectsSelect, #daysSelect').select2({
       placeholder: "Select options",
       width: '100%',
@@ -107,58 +126,67 @@
       allowClear: true
     });
 
-    // Elements references
+    // Global make all .select2 full width
+    $('.select2').select2({ width: '100%' });
+
+    /* ===========================
+       DOM References
+       =========================== */
     const locationBtn = document.getElementById('getLocationBtn');
     const locStatus = document.getElementById('locationStatus');
     const latField = document.getElementById('latitude');
     const lngField = document.getElementById('longitude');
     const addressTextArea = document.getElementById("{{ form.address_text.id }}");
 
-    // Initialize Leaflet map centered on a default location (e.g., Dhaka region)
+    /* ===========================
+       Leaflet Map Setup
+       Default: Dhaka, Bangladesh
+       =========================== */
     const map = L.map('map').setView([23.8103, 90.4125], 6);
 
-    // Add OpenStreetMap tile layer
+    // Tile Layer (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // Marker variable
+    // Marker reference
     let marker = null;
 
-    // Function to update location: sets marker, updates fields, fetches address
+    /* ===========================
+       Function: updateLocation(lat,lng)
+       - Updates marker on map
+       - Sets hidden fields
+       - Reverse geocodes
+       =========================== */
     async function updateLocation(lat, lng) {
       if (marker) {
         marker.setLatLng([lat, lng]);
       } else {
         marker = L.marker([lat, lng], { draggable: true }).addTo(map);
 
-        // When marker is dragged, update location again
+        // Recalculate if marker is dragged
         marker.on('dragend', function (e) {
           const pos = e.target.getLatLng();
           updateLocation(pos.lat, pos.lng);
         });
       }
-      map.setView([lat, lng], 13);
 
+      map.setView([lat, lng], 13);
       latField.value = lat.toFixed(6);
       lngField.value = lng.toFixed(6);
 
       locStatus.textContent = 'Fetching address...';
 
-      // Inside updateLocation function, in the try { ... } block:
       try {
+        // Reverse geocode request
         const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
         const response = await fetch(url);
         const data = await response.json();
 
         if (data && data.display_name) {
           locStatus.textContent = `Selected address: ${data.display_name}`;
-
-          if (addressTextArea) {
-
-            addressTextArea.value = data.display_name;  // Force update every time
-          }
+          if (addressTextArea) addressTextArea.value = data.display_name;
         } else {
           locStatus.textContent = 'Unable to get address from location.';
         }
@@ -166,15 +194,18 @@
         locStatus.textContent = 'Error fetching address info.';
         console.error(err);
       }
-
     }
 
-    // Click on map sets location
+    /* ===========================
+       Map Click → Updates Location
+       =========================== */
     map.on('click', function (e) {
       updateLocation(e.latlng.lat, e.latlng.lng);
     });
 
-    // Geolocation button handler: gets current position and updates
+    /* ===========================
+       "Use My Location" Button
+       =========================== */
     locationBtn.addEventListener('click', () => {
       if (!navigator.geolocation) {
         locStatus.textContent = 'Geolocation is not supported by your browser.';
@@ -185,10 +216,7 @@
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          updateLocation(lat, lng);
+          updateLocation(position.coords.latitude, position.coords.longitude);
         },
         () => {
           locStatus.textContent = 'Unable to retrieve your location.';
@@ -197,5 +225,4 @@
     });
   });
 </script>
-
 {% endblock %}

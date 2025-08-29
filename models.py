@@ -178,6 +178,23 @@ class ConfirmedTuition(db.Model):
     delete_requested_at = db.Column(db.DateTime, nullable=True, default=None)
 
 
+class Feedback(db.Model):
+    __tablename__ = 'feedback'
+
+    id = db.Column(db.Integer, primary_key=True)
+    giver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)   # who gave feedback
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # who received feedback
+    rating = db.Column(db.Integer, nullable=False)  # 1–5
+    comment = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    giver = db.relationship('User', foreign_keys=[giver_id])
+    receiver = db.relationship('User', foreign_keys=[receiver_id])
+
+    __table_args__ = (
+        db.UniqueConstraint('giver_id', 'receiver_id', name='unique_feedback_per_pair'),
+    )
 
 
 class ReportToAdmin(db.Model):
@@ -198,3 +215,15 @@ class ReportToAdmin(db.Model):
     reported_user = db.relationship('User', foreign_keys=[reported_user_id], backref=db.backref('reports_received', passive_deletes=True))
     reported_request = db.relationship('TutorRequest', backref=db.backref('reports', cascade="all, delete-orphan"))
 
+
+class ChatMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message = db.Column(db.Text, nullable=True)  # text message
+    image_path = db.Column(db.String(255), nullable=True)  # optional image
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    is_read = db.Column(db.Boolean, default=False)
+
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    receiver = db.relationship('User', foreign_keys=[receiver_id])

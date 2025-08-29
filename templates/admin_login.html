@@ -1,23 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- =============================== -->
+<!-- Admin Login Page -->
+<!-- Simple login form for admin users -->
+<!-- =============================== -->
+
 <h2>Admin Login</h2>
-<!-- templates/admin_login.html -->
+
+<!-- Admin Login Form -->
+<!-- Includes CSRF protection and requires email+password -->
 <form method="POST">
   
+  <!-- CSRF token for security -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <!-- Email input -->
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>
-    <input type="email" name="email" class="form-control" required>
-    </div>
-    <div class="mb-3">
+    <input type="email" name="email" id="email" class="form-control" required>
+  </div>
+
+  <!-- Password input -->
+  <div class="mb-3">
     <label for="password" class="form-label">Password</label>
-    <input type="password" name="password" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <button type="submit" class="btn btn-primary">Login</button>
-    </div>
+    <input type="password" name="password" id="password" class="form-control" required>
+  </div>
+
+  <!-- Submit button -->
+  <div class="mb-3">
+    <button type="submit" class="btn btn-primary">Login</button>
+  </div>
 </form>
 
 {% endblock %}
-
