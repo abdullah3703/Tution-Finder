@@ -116,7 +116,8 @@ class TutorRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)  # guardian
-    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)  # optional
+    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+
 
     students_number = db.Column(db.Integer, nullable=True)
     student_classes = db.Column(db.String(200), nullable=False)  # CSV
@@ -159,8 +160,9 @@ class TutorResponse(db.Model):
 
 class ConfirmedTuition(db.Model):
     id = db.Column(db.String(10), primary_key=True)  # e.g., T00000001
-    guardian_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    guardian_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+    tutor_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+
     
     student_classes = db.Column(db.String(200))
     subjects = db.Column(db.String(300))
@@ -182,8 +184,9 @@ class Feedback(db.Model):
     __tablename__ = 'feedback'
 
     id = db.Column(db.Integer, primary_key=True)
-    giver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)   # who gave feedback
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # who received feedback
+    giver_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+
     rating = db.Column(db.Integer, nullable=False)  # 1–5
     comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -218,8 +221,9 @@ class ReportToAdmin(db.Model):
 
 class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+
     message = db.Column(db.Text, nullable=True)  # text message
     image_path = db.Column(db.String(255), nullable=True)  # optional image
     timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

@@ -14,39 +14,22 @@
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <!-- Tutor name + email -->
         <span>
-          <a href="{{ url_for('view_profile', user_id=resp.tutor.id) }}">
+          <a href="{{ url_for('view_profile', user_id=resp.tutor.id) }}" target="_blank" rel="noopener noreferrer">
             {{ resp.tutor.username }}
           </a> - {{ resp.tutor.email }}
         </span>
 
         <!-- Action buttons -->
         <div>
-          <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#tutorModal{{ resp.id }}">View</button>
+          <a href="{{ url_for('view_profile', user_id=resp.tutor.id) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-info">View Profile</a>
+          <button class="btn btn-sm btn-primary" onclick="openChat({{ resp.tutor.id }}, '{{ resp.tutor.username }}')">Chat</button>
           <button class="btn btn-sm btn-success" onclick="selectTutor({{ request.id }}, {{ resp.tutor.id }})">Select</button>
+          
         </div>
+
       </li>
 
-      <!-- =============================== -->
-      <!-- Tutor Details Modal -->
-      <!-- =============================== -->
-      <div class="modal fade" id="tutorModal{{ resp.id }}" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-color);">
-            <div class="modal-header" style="background-color: var(--card-bg); color: var(--text-color);">
-              <h5 class="modal-title">{{ resp.tutor.username }}'s Profile</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <p><strong>Email:</strong> {{ resp.tutor.email }}</p>
-              <p><strong>Phone:</strong> {{ resp.tutor.phone_number }}</p>
-              <p><strong>Qualifications:</strong> {{ resp.tutor.qualifications }}</p>
-              <p><strong>Experience:</strong> {{ resp.tutor.experience }}</p>
-              <p><strong>Preferred Classes:</strong> {{ resp.tutor.preferred_classes }}</p>
-              <p><strong>Salary Expectation:</strong> {{ resp.tutor.salary_expectation }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      
     {% endfor %}
   </ul>
 {% else %}

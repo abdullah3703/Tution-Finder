@@ -298,8 +298,22 @@
 
     let html = "";
     if (msg.message) html += msg.message;
-    if (msg.image_path) html += `<img src="${msg.image_path}" class="img-fluid mt-1 rounded" style="max-width:160px; display:block;">`;
-    html += `<div style="font-size:0.77em; color:#800; margin-top:3px;">${msg.timestamp}</div>`;
+    if (msg.image_path) {
+      html += `<img src="${msg.image_path}" class="img-fluid mt-1 rounded" style="max-width:160px; display:block;">`;
+    }
+
+    // Convert UTC timestamp → UTC+6
+    let date = new Date(msg.timestamp);
+    date.setHours(date.getHours() + 6);
+    let localTime = date.toLocaleString("en-GB", { 
+      dateStyle: "short", 
+      timeStyle: "short",
+      hour12: true
+    });
+
+    html += `<div style="font-size:0.77em; color:#800; margin-top:3px;">${localTime}</div>`;
+
+
 
     msgDiv.innerHTML = html;
     wrapper.appendChild(msgDiv);
